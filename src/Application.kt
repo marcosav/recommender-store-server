@@ -4,6 +4,7 @@ import com.gmail.marcosav2010.db.setupDB
 import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.routes.setupRoutes
 import com.gmail.marcosav2010.services.setupServices
+import com.gmail.marcosav2010.validators.setupValidators
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -54,7 +55,10 @@ fun Application.module(testing: Boolean = false) {
     install(Authentication) {
     }
 
-    di { setupServices() }
+    di {
+        setupServices()
+        setupValidators()
+    }
 
     setupRoutes()
 }

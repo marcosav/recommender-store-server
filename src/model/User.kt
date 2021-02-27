@@ -10,7 +10,7 @@ data class User(
     val password: String,
     val profileImgUri: String? = null,
     val nickname: String,
-    val description: String,
+    val description: String? = null,
     val registerDate: Instant? = null,
     val deleted: Boolean? = null
 )

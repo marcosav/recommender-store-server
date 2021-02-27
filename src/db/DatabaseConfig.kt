@@ -30,14 +30,4 @@ private fun createTables() = transaction {
         CartProducts,
         ProductReports
     )
-
-    /*UserEntity.new {
-        name = "a"
-        surname = "aa"
-        address = "aaaa"
-        email = "aad"
-        password = "abc"
-        nickname = "free"
-        description = "b"
-    }*/
 }

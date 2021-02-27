@@ -34,13 +34,13 @@ fun Route.product() {
             call.respond(HttpStatusCode.OK)
         }
 
-        get<Search> {
+        get<SearchProduct> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
             val products = productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
             call.respond(products)
         }
 
-        delete<Delete> {
+        delete<DeleteProduct> {
             // check if owner or admin otherwise forbidden
             productService.safeDelete(it.id)
             call.respond(HttpStatusCode.OK)
@@ -54,7 +54,7 @@ fun Route.product() {
             call.respond(products)
         }
 
-        get<View> {
+        get<ViewProduct> {
             // check is owner or admin if hidden, and is not deleted, otherwise 404
             val product = productService.findById(it.id)
             if (product == null)
@@ -65,12 +65,12 @@ fun Route.product() {
     }
 }
 
-data class Delete(val id: Long)
+data class DeleteProduct(val id: Long)
 
-data class Search(val query: String, val page: Int = 0, val category: Int? = null, val order: Int?)
+data class SearchProduct(val query: String, val page: Int = 0, val category: Int? = null, val order: Int?)
 
 @Location("/details/{id}")
-data class View(val id: Long)
+data class ViewProduct(val id: Long)
 
 @Location("/vendor/{userId}")
 data class VendorProducts(val userId: Long, val shown: Boolean = true, val page: Int)

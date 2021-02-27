@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.db.dao
 
+import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.User
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
@@ -10,13 +11,13 @@ import org.jetbrains.exposed.sql.or
 import java.time.Instant
 
 object Users : LongIdTable() {
-    val name = varchar("name", 63)
-    val surname = varchar("surname", 63)
-    val email = varchar("email", 63)
-    val password = varchar("password", 254)
-    val profileImgUri = varchar("profile_img_uri", 127).nullable()
-    val nickname = varchar("nickname", 16)
-    val description = varchar("description", 600)
+    val name = varchar("name", Constants.MAX_NAME_LENGTH)
+    val surname = varchar("surname", Constants.MAX_SURNAME_LENGTH)
+    val email = varchar("email", Constants.MAX_EMAIL_LENGTH)
+    val password = varchar("password", 255)
+    val profileImgUri = varchar("profile_img_uri", Constants.MAX_PROFILE_IMG_URI_LENGTH).nullable()
+    val nickname = varchar("nickname", Constants.MAX_NICKNAME_LENGTH)
+    val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH).default("")
     val registerDate = timestamp("register_date").default(Instant.now())
     val deleted = bool("deleted").default(false)
 }
@@ -33,7 +34,6 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 password = user.password
                 profileImgUri = user.profileImgUri
                 nickname = user.nickname
-                description = user.description
             }
 
         fun update(user: User) =
@@ -44,8 +44,12 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 password = user.password
                 profileImgUri = user.profileImgUri
                 nickname = user.nickname
-                description = user.description
+                user.description?.let { description = it }
             }
+
+        fun findByEmail(email: String) = find { Users.email eq email }
+
+        fun findByExactNickname(nickname: String) = find { Users.nickname eq nickname }
 
         fun findByUsernameAndPassword(username: String, password: String) =
             find {

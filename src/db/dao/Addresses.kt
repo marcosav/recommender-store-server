@@ -1,18 +1,19 @@
 package com.gmail.marcosav2010.db.dao
 
+import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Address
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 
 object Addresses : LongIdTable() {
-    val recipient = varchar("recipient", 75)
-    val code = varchar("code", 10)
-    val city = varchar("city", 63)
-    val region = varchar("region", 63)
-    val country = varchar("country", 24)
-    val address = varchar("address", 63)
-    val phone = varchar("phone", 63)
+    val recipient = varchar("recipient", Constants.MAX_ADDRESS_RECIPIENT_LENGTH)
+    val code = varchar("code", Constants.MAX_ADDRESS_CODE_LENGTH)
+    val city = varchar("city", Constants.MAX_ADDRESS_CITY_LENGTH)
+    val region = varchar("region", Constants.MAX_ADDRESS_REGION_LENGTH)
+    val country = varchar("country", Constants.MAX_ADDRESS_COUNTRY_LENGTH)
+    val address = varchar("address", Constants.MAX_ADDRESS_LENGTH)
+    val phone = varchar("phone", Constants.MAX_ADDRESS_PHONE_LENGTH)
     val user = reference("user", Users)
 }
 

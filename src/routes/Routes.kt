@@ -10,5 +10,6 @@ fun Application.setupRoutes() {
         login()
         signup()
         product()
+        cart()
     }
 }

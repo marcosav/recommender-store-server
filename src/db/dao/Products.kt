@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.db.dao
 
+import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
@@ -10,8 +11,8 @@ import org.jetbrains.exposed.sql.not
 import java.time.Instant
 
 object Products : LongIdTable() {
-    val name = varchar("name", 63)
-    val description = varchar("description", 1000)
+    val name = varchar("name", Constants.MAX_PRODUCT_NAME_LENGTH)
+    val description = varchar("description", Constants.MAX_PRODUCT_DESC_LENGTH)
     val date = timestamp("date").default(Instant.now())
     val lastUpdated = timestamp("last_updated").default(Instant.now())
     val price = double("price")
@@ -19,7 +20,7 @@ object Products : LongIdTable() {
     val user = reference("user", Users)
     val visits = integer("visits").default(0)
     val category = integer("category")
-    val imgUris = varchar("img_uris", 3000)
+    val imgUris = varchar("img_uris", Constants.MAX_PRODUCT_IMG_URIS_LENGTH)
     val hidden = bool("hidden").default(false)
     val deleted = bool("deleted").default(false)
 }

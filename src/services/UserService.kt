@@ -11,6 +11,14 @@ class UserService : ServiceBase() {
         UserEntity.findById(id)?.toUser()
     }
 
+    fun findByEmail(email: String): User? = transaction {
+        UserEntity.findByEmail(email).firstOrNull()?.toUser()
+    }
+
+    fun findByExactNickname(nickname: String): User? = transaction {
+        UserEntity.findByNickname(nickname).firstOrNull()?.toUser()
+    }
+
     fun findByNickname(nickname: String, size: Int, offset: Int): Pair<List<User>, Long> =
         findPaged(UserEntity.findByNickname(nickname), { it.toUser() }, size, offset)
 
