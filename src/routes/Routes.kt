@@ -8,6 +8,7 @@ import io.ktor.routing.*
 fun Application.setupRoutes() {
     routing {
         login()
+        signup()
         product()
     }
 }

@@ -7,4 +7,5 @@ import org.kodein.di.singleton
 fun DI.MainBuilder.setupServices() {
     bind<UserService>() with singleton { UserService() }
     bind<ProductService>() with singleton { ProductService() }
+    bind<CartService>() with singleton { CartService() }
 }

@@ -1,34 +1,36 @@
 package com.gmail.marcosav2010.services
 
 import com.gmail.marcosav2010.db.dao.UserEntity
-import com.gmail.marcosav2010.db.dao.Users
+import com.gmail.marcosav2010.model.Address
 import com.gmail.marcosav2010.model.User
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class UserService {
+class UserService : ServiceBase() {
 
-    fun findById(id: Long) = transaction {
-        UserEntity[id]
+    fun findById(id: Long): User? = transaction {
+        UserEntity.findById(id)?.toUser()
     }
 
-    fun findByNickname(nickname: String) = transaction {
-        UserEntity.find { Users.nickname like "%$nickname%" }
+    fun findByNickname(nickname: String, size: Int, offset: Int): Pair<List<User>, Long> =
+        findPaged(UserEntity.findByNickname(nickname), { it.toUser() }, size, offset)
+
+    fun findByUsernameAndPassword(username: String, password: String): User? = transaction {
+        UserEntity.findByUsernameAndPassword(username, password).firstOrNull()?.toUser()
     }
 
-    fun add(user: User) = transaction {
-        UserEntity.new {
-            name = user.name
-            surname = user.surname
-            address = user.address
-            email = user.email
-            password = user.password
-            profileImgUri = user.profileImgUri
-            nickname = user.nickname
-            description = user.description
-        }
+    fun findUserAddresses(id: Long): List<Address> = transaction {
+        UserEntity.findById(id)?.addresses?.map { it.toAddress() } ?: emptyList()
     }
 
-    fun safeDelete(id: Long) = transaction {
+    fun add(user: User): User = transaction {
+        UserEntity.add(user).toUser()
+    }
+
+    fun update(user: User): Unit = transaction {
+        UserEntity.update(user)
+    }
+
+    fun safeDelete(id: Long): Unit = transaction {
         UserEntity[id].deleted = true
     }
 }

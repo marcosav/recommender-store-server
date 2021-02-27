@@ -24,9 +24,20 @@ fun Application.setupDB() {
 private fun createTables() = transaction {
     SchemaUtils.create(
         Users,
+        Addresses,
         Products,
         Favorites,
-        Carts,
-        CartProducts
+        CartProducts,
+        ProductReports
     )
+
+    /*UserEntity.new {
+        name = "a"
+        surname = "aa"
+        address = "aaaa"
+        email = "aad"
+        password = "abc"
+        nickname = "free"
+        description = "b"
+    }*/
 }

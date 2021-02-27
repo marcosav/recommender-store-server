@@ -2,10 +2,11 @@ package com.gmail.marcosav2010.db.dao
 
 import com.gmail.marcosav2010.model.Product
 import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.not
 import java.time.Instant
 
 object Products : LongIdTable() {
@@ -24,7 +25,55 @@ object Products : LongIdTable() {
 }
 
 class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
-    companion object : LongEntityClass<ProductEntity>(Products)
+
+    companion object : BaseEntityClass<ProductEntity>(Products) {
+
+        fun add(product: Product) =
+            new {
+                name = product.name
+                description = product.description
+                price = product.price
+                stock = product.stock
+                category = product.category
+                imgUris = product.imgUris
+                hidden = product.hidden
+
+                user = UserEntity[product.userId!!]
+            }
+
+        fun update(product: Product) =
+            ProductEntity[product.id!!].apply {
+                name = product.name
+                description = product.description
+                price = product.price
+                stock = product.stock
+                category = product.category
+                imgUris = product.imgUris
+                hidden = product.hidden
+
+                lastUpdated = Instant.now()
+            }
+
+        fun findByVendor(userId: Long, shown: Boolean) = find {
+            Products.user.eq(userId)
+                .and(not(Products.deleted))
+                .and(
+                    if (shown)
+                        not(Products.hidden)
+                    else
+                        Products.hidden
+                )
+        }
+
+        fun findByName(name: String, category: Int?) = find {
+            var cond = Products.name.like("%$name%")
+                .and(not(Products.hidden))
+                .and(not(Products.deleted))
+
+            category?.let { cond = cond.and(Products.category eq category) }
+            cond
+        }
+    }
 
     var name by Products.name
     var description by Products.description
@@ -53,6 +102,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             category,
             imgUris,
             hidden,
-            deleted
+            deleted,
+            user.id.value
         )
 }

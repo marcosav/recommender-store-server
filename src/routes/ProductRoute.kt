@@ -21,31 +21,33 @@ fun Route.product() {
     route("/product") {
 
         get<Product> {
-            // check owner
+            // if hidden product check if is owner or admin, otherwise, 404
+            it.userId = 1
             productService.add(it)
             call.respond(HttpStatusCode.OK)
         }
 
         put<Product> {
-            // check owner
+            // check if owner or admin otherwise forbidden
+            // validate
             productService.update(it)
             call.respond(HttpStatusCode.OK)
         }
 
         get<Search> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
-            val products = productService.findBy(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
+            val products = productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
             call.respond(products)
         }
 
         delete<Delete> {
-            // check requester is owner
+            // check if owner or admin otherwise forbidden
             productService.safeDelete(it.id)
             call.respond(HttpStatusCode.OK)
         }
 
         get<VendorProducts> {
-            // check requester matches requested if hidden, user not deleted
+            // check requester matches requested, or is admin if hidden, and user not deleted (just admin), otherwise forbidden
             val userId = it.userId ?: call.sessions.get<Session>()?.userId!!
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
             val products = productService.findByVendor(userId, it.shown, Constants.PRODUCTS_PER_PAGE, offset)
@@ -53,16 +55,19 @@ fun Route.product() {
         }
 
         get<View> {
-            // check requester is owner if hidden and not deleted
+            // check is owner or admin if hidden, and is not deleted, otherwise 404
             val product = productService.findById(it.id)
-            call.respond(product)
+            if (product == null)
+                call.respond(HttpStatusCode.NotFound)
+            else
+                call.respond(product)
         }
     }
 }
 
 data class Delete(val id: Long)
 
-data class Search(val query: String, val page: Int = 0, val category: Int? = null)
+data class Search(val query: String, val page: Int = 0, val category: Int? = null, val order: Int?)
 
 @Location("/details/{id}")
 data class View(val id: Long)

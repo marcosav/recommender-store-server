@@ -14,5 +14,6 @@ data class Product(
     val category: Int,
     val imgUris: String,
     val hidden: Boolean,
-    val deleted: Boolean? = null
+    val deleted: Boolean? = null,
+    var userId: Long? = null
 )
