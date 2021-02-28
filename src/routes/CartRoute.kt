@@ -1,6 +1,8 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.services.CartService
+import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.validators.CartUpdateValidator
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -15,6 +17,9 @@ fun Route.cart() {
     route("/cart") {
 
         val cartService by di().instance<CartService>()
+        val productService by di().instance<ProductService>()
+
+        val cartUpdateValidator by di().instance<CartUpdateValidator>()
 
         val userId = 1L
 
@@ -24,14 +29,18 @@ fun Route.cart() {
         }
 
         post<UpdateCartProduct> {
-            // check product is hidden or deleted
-            // validate
-            val product = cartService.setProductAmount(userId, it.productId, it.amount)
-            call.respond(product ?: HttpStatusCode.OK)
+            val product = productService.findById(it.productId)
+            if (product?.hidden != false)
+                throw NotFoundException()
+
+            cartUpdateValidator.validate(it)
+
+            val cartProduct = cartService.setProductAmount(userId, it.productId, it.amount)
+            call.respond(cartProduct ?: HttpStatusCode.OK)
         }
 
         delete<DeleteCartProduct> {
-            cartService.remove(it.id, userId)
+            cartService.remove(it.productId, userId)
             call.respond(HttpStatusCode.OK)
         }
 
@@ -42,6 +51,6 @@ fun Route.cart() {
     }
 }
 
-data class DeleteCartProduct(val id: Long)
+data class DeleteCartProduct(val productId: Long)
 
 data class UpdateCartProduct(val userId: Long, val productId: Long, val amount: Long)

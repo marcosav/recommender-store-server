@@ -8,6 +8,7 @@ import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.not
+import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
 object Products : LongIdTable() {
@@ -19,8 +20,8 @@ object Products : LongIdTable() {
     val stock = integer("stock")
     val user = reference("user", Users)
     val visits = integer("visits").default(0)
-    val category = integer("category")
-    val imgUris = varchar("img_uris", Constants.MAX_PRODUCT_IMG_URIS_LENGTH)
+    val category = reference("category", ProductCategories)
+    val imgUris = varchar("img_uris", 3000)
     val hidden = bool("hidden").default(false)
     val deleted = bool("deleted").default(false)
 }
@@ -32,10 +33,10 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun add(product: Product) =
             new {
                 name = product.name
-                description = product.description
+                product.description?.let { description = it }
                 price = product.price
                 stock = product.stock
-                category = product.category
+                category = ProductCategoryEntity[product.category.id]
                 imgUris = product.imgUris
                 hidden = product.hidden
 
@@ -45,15 +46,25 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun update(product: Product) =
             ProductEntity[product.id!!].apply {
                 name = product.name
-                description = product.description
+                product.description?.let { description = it }
                 price = product.price
                 stock = product.stock
-                category = product.category
+                category = ProductCategoryEntity[product.category.id]
                 imgUris = product.imgUris
                 hidden = product.hidden
 
                 lastUpdated = Instant.now()
             }
+
+        fun delete(id: Long) {
+            findById(id)?.deleted = true
+        }
+
+        fun deleteForUser(userId: Long) = Products.update({ Products.user eq userId }) {
+            it[deleted] = true
+        }
+
+        fun findByIdNotDeleted(id: Long) = find { (Products.id eq id) and not(Products.deleted) }.firstOrNull()
 
         fun findByVendor(userId: Long, shown: Boolean) = find {
             Products.user.eq(userId)
@@ -66,7 +77,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 )
         }
 
-        fun findByName(name: String, category: Int?) = find {
+        fun findByName(name: String, category: Long?) = find {
             var cond = Products.name.like("%$name%")
                 .and(not(Products.hidden))
                 .and(not(Products.deleted))
@@ -83,26 +94,26 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var price by Products.price
     var stock by Products.stock
     var visits by Products.visits
-    var category by Products.category
     var imgUris by Products.imgUris
     var hidden by Products.hidden
     var deleted by Products.deleted
 
     var user by UserEntity referencedOn Products.user
+    var category by ProductCategoryEntity referencedOn Products.category
 
     fun toProduct() =
         Product(
             id.value,
             name,
-            description,
-            date,
-            lastUpdated,
             price,
             stock,
-            visits,
-            category,
+            category.toCategory(),
             imgUris,
             hidden,
+            description,
+            lastUpdated,
+            date,
+            visits,
             deleted,
             user.id.value
         )

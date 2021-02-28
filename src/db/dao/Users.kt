@@ -7,6 +7,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.or
 import java.time.Instant
 
@@ -15,7 +16,7 @@ object Users : LongIdTable() {
     val surname = varchar("surname", Constants.MAX_SURNAME_LENGTH)
     val email = varchar("email", Constants.MAX_EMAIL_LENGTH)
     val password = varchar("password", 255)
-    val profileImgUri = varchar("profile_img_uri", Constants.MAX_PROFILE_IMG_URI_LENGTH).nullable()
+    val profileImgUri = varchar("profile_img_uri", 255).nullable()
     val nickname = varchar("nickname", Constants.MAX_NICKNAME_LENGTH)
     val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH).default("")
     val registerDate = timestamp("register_date").default(Instant.now())
@@ -42,22 +43,29 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 surname = user.surname
                 email = user.email
                 password = user.password
-                profileImgUri = user.profileImgUri
+                user.profileImgUri?.let { profileImgUri = it }
                 nickname = user.nickname
                 user.description?.let { description = it }
             }
 
-        fun findByEmail(email: String) = find { Users.email eq email }
+        fun delete(id: Long) {
+            findById(id)?.deleted = true
+        }
 
-        fun findByExactNickname(nickname: String) = find { Users.nickname eq nickname }
+        fun findByIdNotDeleted(id: Long) =
+            find { (Users.id eq id) and not(Users.deleted) }.firstOrNull()
+
+        fun findByEmail(email: String) = find { Users.email eq email }.firstOrNull()
+
+        fun findByExactNickname(nickname: String) = find { Users.nickname eq nickname }.firstOrNull()
 
         fun findByUsernameAndPassword(username: String, password: String) =
             find {
                 ((Users.nickname eq username).or(Users.email eq username))
-                    .and(Users.password eq password)
-            }
+                    .and(Users.password eq password).and(not(Users.deleted))
+            }.firstOrNull()
 
-        fun findByNickname(nickname: String) = find { Users.nickname like "%$nickname%" }
+        fun findByNickname(nickname: String) = find { (Users.nickname like "%$nickname%") and not(Users.deleted) }
     }
 
     var name by Users.name
@@ -82,8 +90,8 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
             surname,
             email,
             password,
-            profileImgUri,
             nickname,
+            profileImgUri,
             description,
             registerDate,
             deleted

@@ -2,6 +2,7 @@ package com.gmail.marcosav2010
 
 import com.gmail.marcosav2010.db.setupDB
 import com.gmail.marcosav2010.model.Session
+import com.gmail.marcosav2010.routes.setupExceptionHandler
 import com.gmail.marcosav2010.routes.setupRoutes
 import com.gmail.marcosav2010.services.setupServices
 import com.gmail.marcosav2010.validators.setupValidators
@@ -53,6 +54,10 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Authentication) {
+    }
+
+    install(StatusPages) {
+        setupExceptionHandler()
     }
 
     di {

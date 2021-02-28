@@ -2,75 +2,125 @@ package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
-import com.gmail.marcosav2010.model.Session
+import com.gmail.marcosav2010.model.ProductCategory
 import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.validators.ProductValidator
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.sessions.*
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 
 @KtorExperimentalLocationsAPI
 fun Route.product() {
 
-    val productService by di().instance<ProductService>()
-
     route("/product") {
 
-        get<Product> {
-            // if hidden product check if is owner or admin, otherwise, 404
-            it.userId = 1
-            productService.add(it)
-            call.respond(HttpStatusCode.OK)
-        }
+        val productService by di().instance<ProductService>()
+        val productValidator by di().instance<ProductValidator>()
 
-        put<Product> {
-            // check if owner or admin otherwise forbidden
-            // validate
-            productService.update(it)
-            call.respond(HttpStatusCode.OK)
+        post<ProductForm> {
+            productValidator.validate(it)
+
+            val userId = 1L
+            var product = it.toProduct(userId)
+            // update images
+            product = productService.add(product)
+
+            call.respond(product)
         }
 
         get<SearchProduct> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
             val products = productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
-            call.respond(products)
-        }
 
-        delete<DeleteProduct> {
-            // check if owner or admin otherwise forbidden
-            productService.safeDelete(it.id)
-            call.respond(HttpStatusCode.OK)
+            call.respond(products)
         }
 
         get<VendorProducts> {
-            // check requester matches requested, or is admin if hidden, and user not deleted (just admin), otherwise forbidden
-            val userId = it.userId ?: call.sessions.get<Session>()?.userId!!
+            val userId = 1L
+            val admin = false
+
+            if (!it.shown && it.vendorId != userId && !admin)
+                throw ForbiddenException()
+
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
-            val products = productService.findByVendor(userId, it.shown, Constants.PRODUCTS_PER_PAGE, offset)
+            val products = productService.findByVendor(it.vendorId, it.shown, Constants.PRODUCTS_PER_PAGE, offset)
+
             call.respond(products)
         }
 
-        get<ViewProduct> {
-            // check is owner or admin if hidden, and is not deleted, otherwise 404
-            val product = productService.findById(it.id)
-            if (product == null)
-                call.respond(HttpStatusCode.NotFound)
-            else
-                call.respond(product)
+        put<ProductForm> {
+            val userId = 1L
+            val admin = false
+            if (!productService.isSelling(it.id!!, userId) && !admin)
+                throw ForbiddenException()
+
+            productValidator.validate(it)
+
+            var product = it.toProduct()
+            // update images
+            product = productService.update(product)
+
+            call.respond(product)
+        }
+
+        delete<ProductPath.Delete> {
+            val userId = 1L
+            val admin = false
+            if (!productService.isSelling(it.base.id, userId) && !admin)
+                throw ForbiddenException()
+
+            productService.delete(it.base.id)
+
+            call.respond(HttpStatusCode.OK)
+        }
+
+        get<ProductPath.Details> {
+            val product = productService.findById(it.base.id)
+
+            val userId = 1L
+            val admin = false
+            if (product == null || (product.userId != userId && product.hidden && !admin))
+                throw NotFoundException()
+
+            call.respond(product)
         }
     }
 }
 
-data class DeleteProduct(val id: Long)
+data class ProductForm(
+    val id: Long? = null,
+    val name: String,
+    val description: String?,
+    val price: Double,
+    val stock: Int,
+    val category: Long,
+    val images: String,
+    val hidden: Boolean
+) {
 
-data class SearchProduct(val query: String, val page: Int = 0, val category: Int? = null, val order: Int?)
+    fun toProduct(userId: Long? = null) =
+        Product(id, name, price, stock, ProductCategory(category), images, hidden, userId = userId)
+}
 
-@Location("/details/{id}")
-data class ViewProduct(val id: Long)
+@KtorExperimentalLocationsAPI
+@Location("/{id}")
+data class ProductPath(val id: Long) {
 
-@Location("/vendor/{userId}")
-data class VendorProducts(val userId: Long, val shown: Boolean = true, val page: Int)
+    @Location("/")
+    data class Details(val base: ProductPath)
+
+    @Location("/")
+    data class Delete(val base: ProductPath)
+}
+
+@KtorExperimentalLocationsAPI
+@Location("/list")
+data class SearchProduct(val query: String, val page: Int = 0, val category: Long? = null, val order: Int? = null)
+
+@KtorExperimentalLocationsAPI
+@Location("/vendor/{vendorId}")
+data class VendorProducts(val vendorId: Long, val shown: Boolean = true, val page: Int)
