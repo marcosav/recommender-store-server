@@ -12,5 +12,5 @@ data class User(
     val profileImgUri: String? = null,
     val description: String? = null,
     val registerDate: Instant? = null,
-    val deleted: Boolean? = null
+    //val deleted: Boolean? = null
 )

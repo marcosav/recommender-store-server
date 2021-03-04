@@ -33,4 +33,7 @@ object Constants {
 
     /*  */
     const val PRODUCTS_PER_PAGE = 20
+
+    /* */
+    const val SESSION_DURATION = 7 * 24 * 3600L
 }

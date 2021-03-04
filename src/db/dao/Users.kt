@@ -80,7 +80,8 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
 
     val addresses by AddressEntity referrersOn Addresses.user
     val products by ProductEntity referrersOn Products.user
-    val favorites by FavoriteEntity referrersOn Favorites.user
+    val favoriteProducts by FavoriteProductEntity referrersOn FavoriteProducts.user
+    val favoriteVendors by FavoriteVendorEntity referrersOn FavoriteVendors.user
     val cartProducts by CartProductEntity referrersOn CartProducts.user
 
     fun toUser() =
@@ -93,7 +94,6 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
             nickname,
             profileImgUri,
             description,
-            registerDate,
-            deleted
+            registerDate
         )
 }

@@ -1,33 +1,35 @@
 package com.gmail.marcosav2010.routes
 
-import com.gmail.marcosav2010.model.Session
-import com.gmail.marcosav2010.services.UserService
+import com.gmail.marcosav2010.services.*
+import com.gmail.marcosav2010.services.cart.CartService
 import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.sessions.*
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 
 @KtorExperimentalLocationsAPI
 fun Route.login() {
 
+    val authenticationService by di().instance<AuthenticationService>()
     val userService by di().instance<UserService>()
+    val roleService by di().instance<RoleService>()
+    val cartService by di().instance<CartService>()
 
     post<Login> {
-        //val session = call.sessions.get<Session>() ?: Session()
-        //call.sessions.set(session.copy(count = session.count + 1))
-        val hashedPassword = it.password
-        val matched = userService.findByUsernameAndPassword(it.username, hashedPassword)
-        call.respond(HttpStatusCode.OK)
-    }
+        if (it.username.isEmpty() || it.password.isEmpty())
+            throw UnauthorizedException()
 
-    get("/logout") {
-        // delete session
-        call.sessions.clear<Session>()
-        call.respond(HttpStatusCode.OK)
+        val matched = userService.findByUsernameAndPassword(it.username, it.password)
+        if (matched != null) {
+            roleService.findForUser(matched.id!!, true) ?: throw UnauthorizedException()
+
+            session.cart?.let { c -> cartService.addMultipleItems(matched.id, c) }
+
+            call.respond(authenticationService.authenticate(matched.id.toString()))
+
+        } else throw UnauthorizedException()
     }
 }
 

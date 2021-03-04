@@ -4,6 +4,7 @@ import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
 import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.ProductValidator
 import io.ktor.application.*
 import io.ktor.http.*
@@ -24,15 +25,14 @@ fun Route.product() {
         post<ProductForm> {
             productValidator.validate(it)
 
-            val userId = 1L
-            var product = it.toProduct(userId)
-            // update images
+            var product = it.toProduct(session.userId!!)
+            // TODO: update images
             product = productService.add(product)
 
             call.respond(product)
         }
 
-        get<SearchProduct> {
+        get<ProductSearch> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
             val products = productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
 
@@ -40,8 +40,8 @@ fun Route.product() {
         }
 
         get<VendorProducts> {
-            val userId = 1L
-            val admin = false
+            val userId = session.userId!!
+            val admin = session.isAdmin
 
             if (!it.shown && it.vendorId != userId && !admin)
                 throw ForbiddenException()
@@ -53,24 +53,24 @@ fun Route.product() {
         }
 
         put<ProductForm> {
-            val userId = 1L
-            val admin = false
-            if (!productService.isSelling(it.id!!, userId) && !admin)
+            val userId = session.userId!!
+            val admin = session.isAdmin
+            if (!productService.isSellingBy(it.id!!, userId) && !admin)
                 throw ForbiddenException()
 
             productValidator.validate(it)
 
             var product = it.toProduct()
-            // update images
+            // TODO: update images
             product = productService.update(product)
 
             call.respond(product)
         }
 
         delete<ProductPath.Delete> {
-            val userId = 1L
-            val admin = false
-            if (!productService.isSelling(it.base.id, userId) && !admin)
+            val userId = session.userId!!
+            val admin = session.isAdmin
+            if (!productService.isSellingBy(it.base.id, userId) && !admin)
                 throw ForbiddenException()
 
             productService.delete(it.base.id)
@@ -81,8 +81,8 @@ fun Route.product() {
         get<ProductPath.Details> {
             val product = productService.findById(it.base.id)
 
-            val userId = 1L
-            val admin = false
+            val userId = session.userId!!
+            val admin = session.isAdmin
             if (product == null || (product.userId != userId && product.hidden && !admin))
                 throw NotFoundException()
 
@@ -119,7 +119,7 @@ data class ProductPath(val id: Long) {
 
 @KtorExperimentalLocationsAPI
 @Location("/list")
-data class SearchProduct(val query: String, val page: Int = 0, val category: Long? = null, val order: Int? = null)
+data class ProductSearch(val query: String, val page: Int = 0, val category: Long? = null, val order: Int? = null)
 
 @KtorExperimentalLocationsAPI
 @Location("/vendor/{vendorId}")

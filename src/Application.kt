@@ -1,9 +1,9 @@
 package com.gmail.marcosav2010
 
 import com.gmail.marcosav2010.db.setupDB
-import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.routes.setupExceptionHandler
 import com.gmail.marcosav2010.routes.setupRoutes
+import com.gmail.marcosav2010.services.setupJWT
 import com.gmail.marcosav2010.services.setupServices
 import com.gmail.marcosav2010.validators.setupValidators
 import io.ktor.application.*
@@ -12,7 +12,6 @@ import io.ktor.features.*
 import io.ktor.gson.*
 import io.ktor.http.*
 import io.ktor.locations.*
-import io.ktor.sessions.*
 import org.kodein.di.ktor.di
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -49,20 +48,17 @@ fun Application.module(testing: Boolean = false) {
         //anyHost() // Don't do this in production if possible. Try to limit it.
     }
 
-    install(Sessions) {
-        header<Session>("session-id", storage = SessionStorageMemory())
+    di {
+        setupServices()
+        setupValidators()
     }
 
     install(Authentication) {
+        setupJWT(di())
     }
 
     install(StatusPages) {
         setupExceptionHandler()
-    }
-
-    di {
-        setupServices()
-        setupValidators()
     }
 
     setupRoutes()

@@ -4,7 +4,7 @@ import java.time.Instant
 
 data class CartProduct(
     val id: Long?,
-    val productId: Product,
+    val product: Product,
     val userId: Long,
     val amount: Long,
     val lastUpdated: Instant

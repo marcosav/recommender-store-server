@@ -1,7 +1,8 @@
 package com.gmail.marcosav2010.routes
 
-import com.gmail.marcosav2010.services.CartService
+import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.CartUpdateValidator
 import io.ktor.application.*
 import io.ktor.http.*
@@ -21,10 +22,8 @@ fun Route.cart() {
 
         val cartUpdateValidator by di().instance<CartUpdateValidator>()
 
-        val userId = 1L
-
         get {
-            val cart = cartService.findByUser(userId)
+            val cart = cartService.findByUser(session.userId!!)
             call.respond(cart)
         }
 
@@ -35,17 +34,17 @@ fun Route.cart() {
 
             cartUpdateValidator.validate(it)
 
-            val cartProduct = cartService.setProductAmount(userId, it.productId, it.amount)
+            val cartProduct = cartService.setProductAmount(session.userId!!, it.productId, it.amount)
             call.respond(cartProduct ?: HttpStatusCode.OK)
         }
 
         delete<DeleteCartProduct> {
-            cartService.remove(it.productId, userId)
+            cartService.remove(it.productId, session.userId!!)
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/all") {
-            cartService.clear(userId)
+            cartService.clear(session.userId!!)
             call.respond(HttpStatusCode.OK)
         }
     }

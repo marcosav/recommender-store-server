@@ -25,9 +25,12 @@ private fun createTables() = transaction {
     SchemaUtils.create(
         Users,
         Addresses,
+        ProductCategories,
         Products,
-        Favorites,
+        FavoriteProducts,
+        FavoriteVendors,
         CartProducts,
-        ProductReports
+        ProductReports,
+        UserRoles
     )
 }

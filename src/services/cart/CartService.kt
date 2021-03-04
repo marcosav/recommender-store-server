@@ -1,16 +1,16 @@
-package com.gmail.marcosav2010.services
+package com.gmail.marcosav2010.services.cart
 
 import com.gmail.marcosav2010.db.dao.CartProductEntity
 import com.gmail.marcosav2010.model.CartProduct
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class CartService : ServiceBase() {
+class CartService : ICartService {
 
     fun findByUser(userId: Long): List<CartProduct> = transaction {
         CartProductEntity.findByUser(userId).map { it.toCartProduct() }
     }
 
-    fun setProductAmount(userId: Long, productId: Long, amount: Long): CartProduct? = transaction {
+    override fun setProductAmount(userId: Long, productId: Long, amount: Long): CartProduct? = transaction {
         if (amount == 0L) {
             remove(userId, productId)
             null
@@ -18,11 +18,15 @@ class CartService : ServiceBase() {
             CartProductEntity.add(userId, productId, amount).toCartProduct()
     }
 
-    fun remove(userId: Long, productId: Long): Unit = transaction {
+    override fun addMultipleItems(userId: Long, items: List<CartProduct>) = transaction {
+        items.forEach { it.product.id?.let { id -> CartProductEntity.add(userId, id, it.amount) } }
+    }
+
+    override fun remove(userId: Long, productId: Long): Unit = transaction {
         CartProductEntity.delete(userId, productId)
     }
 
-    fun clear(userId: Long): Unit = transaction {
+    override fun clear(userId: Long): Unit = transaction {
         CartProductEntity.clear(userId)
     }
 }

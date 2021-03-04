@@ -29,8 +29,9 @@ fun Route.signup() {
         }
     }
 
-    route("/profile") {
+    route("/edit") {
         put<UserForm> {
+            // TODO: Optional parameters
             it.editing = true
             userFormValidator.validate(it)
 
@@ -43,6 +44,7 @@ fun Route.signup() {
 }
 
 data class UserForm(
+    val id: Long? = null,
     val name: String,
     val surname: String,
     var email: String,
@@ -57,7 +59,7 @@ data class UserForm(
 
     fun toUser() =
         User(
-            null,
+            id,
             name,
             surname,
             email,
