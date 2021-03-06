@@ -40,7 +40,7 @@ class ProductService {
             Pair(Products.lastUpdated, SortOrder.DESC)
         )
 
-    fun isSellingBy(productId: Long, userId: Long): Boolean = transaction {
+    fun isSoldBy(productId: Long, userId: Long): Boolean = transaction {
         ProductEntity.findByIdNotDeleted(productId)?.user?.id?.value == userId
     }
 

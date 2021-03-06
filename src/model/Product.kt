@@ -10,10 +10,11 @@ data class Product(
     val category: ProductCategory,
     val imgUris: String,
     val hidden: Boolean,
-    val description: String? = null,
+    val description: String,
     val lastUpdated: Instant? = null,
     val date: Instant? = null,
     val visits: Int? = null,
-    val deleted: Boolean? = null,
+    val rating: Double? = null,
+    //val deleted: Boolean? = null,
     var userId: Long? = null
 )

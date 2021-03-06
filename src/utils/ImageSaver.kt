@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.utils
 
+import com.gmail.marcosav2010.Constants
 import java.io.File
 import java.nio.file.Files
 import java.util.*
@@ -7,8 +8,14 @@ import java.util.*
 
 object ImageSaver {
 
-    // TODO: set path (env var)
-    private const val IMG_PATH = ""
+    private const val B64_BYTES_FACTOR = 1.334
+
+    val STATIC_FILES_ROUTE = System.getenv(Constants.PUBLIC_PATH_ENV) ?: Constants.DEFAULT_PUBLIC_PATH
+    val IMG_FOLDER_ROUTE = System.getenv(Constants.IMG_PATH_ENV) ?: Constants.DEFAULT_IMG_PATH
+
+    private val IMG_PATH = "${STATIC_FILES_ROUTE}/${IMG_FOLDER_ROUTE}"
+
+    fun calculateOriginalByteSize(base64: String) = base64.length.toDouble() / B64_BYTES_FACTOR
 
     fun process(encoded: String, ext: String): String {
         val name = UUID.randomUUID()
@@ -18,7 +25,7 @@ object ImageSaver {
 
         val decoded = Base64.getDecoder().decode(encoded)
         Files.write(f.toPath(), decoded)
-        // TODO: improve saving with an stream to avoid overloads
+
         return f.path
     }
 }

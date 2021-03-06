@@ -20,15 +20,16 @@ class ProductValidator(di: DI) : Validator<ProductForm>() {
         max("stock", it.stock, Constants.MAX_PRODUCT_STOCK)
         max("price", it.price, Constants.MAX_PRODUCT_PRICE)
 
-        it.description?.let { e -> maxLength("description", e, Constants.MAX_PRODUCT_DESC_LENGTH) }
+        maxLength("description", it.description, Constants.MAX_PRODUCT_DESC_LENGTH)
 
         check("category", productService.findCategoryById(it.category) == null, "invalid")
 
+        // TODO: check images
         // img amount
         /*val userListType: Type = object : TypeToken<List<String>>() {}.type
         val uris = Gson().fromJson<List<String>>(it.imgUris, userListType)
 
-        check("images", uris.size > Constants.MAX_IMAGES_PER_PRODUCT, "a")*/
+        check("images", uris.size > Constants.MAX_IMAGE_BYTE_SIZE, "a")*/
         // img size
     }
 }

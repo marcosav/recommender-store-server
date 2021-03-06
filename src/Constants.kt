@@ -3,6 +3,18 @@ package com.gmail.marcosav2010
 object Constants {
 
     /*  */
+    const val PUBLIC_PATH_ENV = "PUBLIC_PATH"
+    const val IMG_PATH_ENV = "IMG_PATH"
+    const val JWT_SECRET_ENV = "JWT_SECRET"
+
+    /* */
+    const val DEFAULT_PUBLIC_PATH = "public"
+    const val DEFAULT_IMG_PATH = "img"
+
+    /*  */
+    const val API_VERSION = 1
+
+    /*  */
     const val MAX_EMAIL_LENGTH = 256
     const val MAX_NICKNAME_LENGTH = 20
     const val MIN_NICKNAME_LENGTH = 3
@@ -10,7 +22,8 @@ object Constants {
     const val MAX_NAME_LENGTH = 50
     const val MAX_SURNAME_LENGTH = 63
     const val MAX_DESCRIPTION_LENGTH = 800
-    const val MAX_USER_IMAGE_BYTE_SIZE = 16 * 1024 * 1024
+
+    const val MAX_IMAGE_BYTE_SIZE = 16 * 1024 * 1024
 
     const val MAX_ADDRESS_RECIPIENT_LENGTH = 100
     const val MAX_ADDRESS_CODE_LENGTH = 10
@@ -26,7 +39,6 @@ object Constants {
     const val MAX_PRODUCT_PRICE = 999999.0
     const val MAX_PRODUCT_STOCK = 99999
     const val MAX_IMAGES_PER_PRODUCT = 8
-    const val MAX_PRODUCT_IMAGE_BYTE_SIZE = 16 * 1024 * 1024
     val ALLOWED_IMAGE_EXT = arrayOf("jpeg", "jpg", "png")
 
     const val MAX_PRODUCT_REPORT_DESC_LENGTH = 300
@@ -36,4 +48,6 @@ object Constants {
 
     /* */
     const val SESSION_DURATION = 7 * 24 * 3600L
+    const val USER_ID_CLAIM = "uid"
+    const val CART_CLAIM = "cart"
 }

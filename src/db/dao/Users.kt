@@ -18,7 +18,7 @@ object Users : LongIdTable() {
     val password = varchar("password", 255)
     val profileImgUri = varchar("profile_img_uri", 255).nullable()
     val nickname = varchar("nickname", Constants.MAX_NICKNAME_LENGTH)
-    val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH).default("")
+    val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH)
     val registerDate = timestamp("register_date").default(Instant.now())
     val deleted = bool("deleted").default(false)
 }
@@ -35,17 +35,18 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 password = user.password
                 profileImgUri = user.profileImgUri
                 nickname = user.nickname
+                description = user.description
             }
 
         fun update(user: User) =
             UserEntity[user.id!!].apply {
                 name = user.name
                 surname = user.surname
-                email = user.email
-                password = user.password
+                if (user.password.isNotBlank())
+                    password = user.password
+                description = user.description
                 user.profileImgUri?.let { profileImgUri = it }
                 nickname = user.nickname
-                user.description?.let { description = it }
             }
 
         fun delete(id: Long) {
@@ -92,8 +93,9 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
             email,
             password,
             nickname,
-            profileImgUri,
             description,
-            registerDate
+            profileImgUri,
+            registerDate,
+            deleted
         )
 }

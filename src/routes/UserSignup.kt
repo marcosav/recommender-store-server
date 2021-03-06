@@ -3,7 +3,8 @@ package com.gmail.marcosav2010.routes
 import com.gmail.marcosav2010.model.User
 import com.gmail.marcosav2010.services.UserService
 import com.gmail.marcosav2010.utils.ImageSaver
-import com.gmail.marcosav2010.validators.UserFormValidator
+import com.gmail.marcosav2010.validators.UserEditFormValidator
+import com.gmail.marcosav2010.validators.UserRegisterFormValidator
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -16,11 +17,12 @@ import org.kodein.di.ktor.di
 fun Route.signup() {
 
     val userService by di().instance<UserService>()
-    val userFormValidator by di().instance<UserFormValidator>()
+    val userRegisterFormValidator by di().instance<UserRegisterFormValidator>()
+    val userEditFormValidator by di().instance<UserEditFormValidator>()
 
     route("/signup") {
         post<UserForm> {
-            userFormValidator.validate(it)
+            userRegisterFormValidator.validate(it)
 
             it.profileImage?.let { i -> it.profileImage = ImageSaver.process(i, it.profileImageExt!!) }
 
@@ -31,9 +33,7 @@ fun Route.signup() {
 
     route("/edit") {
         put<UserForm> {
-            // TODO: Optional parameters
-            it.editing = true
-            userFormValidator.validate(it)
+            userEditFormValidator.validate(it)
 
             it.profileImage?.let { i -> it.profileImage = ImageSaver.process(i, it.profileImageExt!!) }
 
@@ -47,16 +47,15 @@ data class UserForm(
     val id: Long? = null,
     val name: String,
     val surname: String,
-    var email: String,
-    val repeatedEmail: String,
+    val email: String = "",
+    val repeatedEmail: String = "",
     val password: String,
     val repeatedPassword: String,
     val nickname: String,
+    val description: String,
     var profileImage: String? = null,
     var profileImageExt: String? = null,
 ) {
-    var editing: Boolean = false
-
     fun toUser() =
         User(
             id,
@@ -65,6 +64,7 @@ data class UserForm(
             email,
             password,
             nickname,
+            description,
             profileImage
         )
 }

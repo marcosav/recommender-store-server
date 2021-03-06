@@ -7,7 +7,7 @@ import org.kodein.di.singleton
 
 fun DI.MainBuilder.setupServices() {
     bind<AuthenticationService>() with singleton { AuthenticationService() }
-    bind<UserService>() with singleton { UserService() }
+    bind<UserService>() with singleton { UserService(di) }
     bind<RoleService>() with singleton { RoleService() }
     bind<ProductService>() with singleton { ProductService() }
     bind<CartService>() with singleton { CartService() }

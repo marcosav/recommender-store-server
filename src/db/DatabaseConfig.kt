@@ -16,7 +16,7 @@ fun Application.setupDB() {
     val dbConfig = HikariConfig(configPath)
     val dataSource = HikariDataSource(dbConfig)
 
-    Database.connect(dataSource)
+    Database.connect(dataSource)//.apply { useNestedTransactions = true }
 
     createTables()
 }

@@ -24,7 +24,7 @@ fun Route.users() {
         }
 
         get<UserProfile> {
-            val user = userService.findById(it.id) ?: NotFoundException()
+            val user = userService.findById(it.id)?.toPublicUser() ?: NotFoundException()
             call.respond(user)
         }
     }

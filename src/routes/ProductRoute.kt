@@ -4,7 +4,9 @@ import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
 import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.utils.ImageSaver
 import com.gmail.marcosav2010.validators.ProductValidator
 import io.ktor.application.*
 import io.ktor.http.*
@@ -23,6 +25,8 @@ fun Route.product() {
         val productValidator by di().instance<ProductValidator>()
 
         post<ProductForm> {
+            assertIdentified()
+
             productValidator.validate(it)
 
             var product = it.toProduct(session.userId!!)
@@ -40,10 +44,10 @@ fun Route.product() {
         }
 
         get<VendorProducts> {
-            val userId = session.userId!!
-            val admin = session.isAdmin
+            if (!it.shown)
+                assertIdentified()
 
-            if (!it.shown && it.vendorId != userId && !admin)
+            if (!it.shown && it.vendorId != session.userId!! && !session.isAdmin)
                 throw ForbiddenException()
 
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
@@ -53,9 +57,11 @@ fun Route.product() {
         }
 
         put<ProductForm> {
+            assertIdentified()
+
             val userId = session.userId!!
             val admin = session.isAdmin
-            if (!productService.isSellingBy(it.id!!, userId) && !admin)
+            if (!productService.isSoldBy(it.id!!, userId) && !admin)
                 throw ForbiddenException()
 
             productValidator.validate(it)
@@ -68,9 +74,11 @@ fun Route.product() {
         }
 
         delete<ProductPath.Delete> {
+            assertIdentified()
+
             val userId = session.userId!!
             val admin = session.isAdmin
-            if (!productService.isSellingBy(it.base.id, userId) && !admin)
+            if (!productService.isSoldBy(it.base.id, userId) && !admin)
                 throw ForbiddenException()
 
             productService.delete(it.base.id)
@@ -94,7 +102,7 @@ fun Route.product() {
 data class ProductForm(
     val id: Long? = null,
     val name: String,
-    val description: String?,
+    val description: String,
     val price: Double,
     val stock: Int,
     val category: Long,
@@ -103,7 +111,7 @@ data class ProductForm(
 ) {
 
     fun toProduct(userId: Long? = null) =
-        Product(id, name, price, stock, ProductCategory(category), images, hidden, userId = userId)
+        Product(id, name, price, stock, ProductCategory(category), images, hidden, description, userId = userId)
 }
 
 @KtorExperimentalLocationsAPI

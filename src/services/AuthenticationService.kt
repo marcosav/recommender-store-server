@@ -4,9 +4,8 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.gmail.marcosav2010.Constants
-import com.gmail.marcosav2010.model.CartProduct
-import com.gmail.marcosav2010.model.Role
-import com.gmail.marcosav2010.model.Session
+import com.gmail.marcosav2010.model.*
+import com.gmail.marcosav2010.routes.UnauthorizedException
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -20,20 +19,24 @@ class AuthenticationService {
 
     private val clock = Clock.systemUTC()
 
-    private val jwtAlgorithm = Algorithm.HMAC384(System.getenv("JWT_SECRET"))
+    private val jwtAlgorithm = Algorithm.HMAC384(System.getenv(Constants.JWT_SECRET_ENV))
 
     val jwtVerifier: JWTVerifier =
         (JWT.require(jwtAlgorithm) as JWTVerifier.BaseVerification).build { Date(clock.millis()) }
 
-    fun authenticate(subject: String): String =
+    fun token(subject: String, cart: SessionCart? = null, userId: Long? = null): String =
         JWT.create()
             .withSubject(subject)
+            .apply { userId?.let { withClaim(Constants.USER_ID_CLAIM, it) } }
+            .apply { cart?.let { withClaim(Constants.CART_CLAIM, it.toJSON()) } }
             .withExpiresAt(Date.from(clock.instant().plusSeconds(Constants.SESSION_DURATION)))
             .sign(jwtAlgorithm)
 }
 
 inline val PipelineContext<*, ApplicationCall>.safeSession: Session? get() = call.authentication.principal()
 inline val PipelineContext<*, ApplicationCall>.session: Session get() = safeSession!!
+
+fun PipelineContext<*, ApplicationCall>.assertIdentified() = session.userId ?: throw UnauthorizedException()
 
 fun Authentication.Configuration.setupJWT(di: DI) {
     jwt {
@@ -44,14 +47,15 @@ fun Authentication.Configuration.setupJWT(di: DI) {
         realm = "mav"
 
         validate {
-            val sessionId = UUID.fromString(it.payload.subject)
+            val sessionId = it.payload.subject
             val userId = it.payload.getClaim("uid").asString().toLongOrNull()
-            val cart = it.payload.getClaim("cart").asList(CartProduct::class.java)
 
             if (userId != null)
-                roleService.findForUser(userId)?.let { r -> Session(sessionId, userId, r, cart) }
-            else
+                roleService.findForUser(userId)?.let { r -> Session(sessionId, userId, r) }
+            else {
+                val cart = it.payload.getClaim("cart").runCatching { asList(CartProduct::class.java) }.getOrNull()
                 Session(sessionId, null, Role.ANONYMOUS, cart)
+            }
         }
     }
 }

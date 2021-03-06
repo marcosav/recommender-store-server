@@ -9,8 +9,18 @@ data class User(
     val email: String,
     var password: String,
     val nickname: String,
+    val description: String,
     val profileImgUri: String? = null,
-    val description: String? = null,
     val registerDate: Instant? = null,
-    //val deleted: Boolean? = null
+    val deleted: Boolean? = null
+) {
+    fun toPublicUser() = PublicUser(id!!, nickname, description, profileImgUri, registerDate!!)
+}
+
+data class PublicUser(
+    val id: Long,
+    val nickname: String,
+    val description: String?,
+    val profileImgUri: String?,
+    val registerDate: Instant
 )

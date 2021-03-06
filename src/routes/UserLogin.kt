@@ -1,7 +1,10 @@
 package com.gmail.marcosav2010.routes
 
-import com.gmail.marcosav2010.services.*
+import com.gmail.marcosav2010.services.AuthenticationService
+import com.gmail.marcosav2010.services.RoleService
+import com.gmail.marcosav2010.services.UserService
 import com.gmail.marcosav2010.services.cart.CartService
+import com.gmail.marcosav2010.services.session
 import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.response.*
@@ -27,7 +30,7 @@ fun Route.login() {
 
             session.cart?.let { c -> cartService.addMultipleItems(matched.id, c) }
 
-            call.respond(authenticationService.authenticate(matched.id.toString()))
+            call.respond(authenticationService.token(session.sessionId, null, matched.id))
 
         } else throw UnauthorizedException()
     }

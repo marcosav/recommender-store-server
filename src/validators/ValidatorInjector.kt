@@ -5,7 +5,8 @@ import org.kodein.di.bind
 import org.kodein.di.singleton
 
 fun DI.MainBuilder.setupValidators() {
-    bind<UserFormValidator>() with singleton { UserFormValidator(di) }
+    bind<UserRegisterFormValidator>() with singleton { UserRegisterFormValidator(di) }
+    bind<UserEditFormValidator>() with singleton { UserEditFormValidator() }
     bind<ProductValidator>() with singleton { ProductValidator(di) }
     bind<CartUpdateValidator>() with singleton { CartUpdateValidator() }
 }

@@ -3,11 +3,12 @@ package com.gmail.marcosav2010.validators
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
 import com.gmail.marcosav2010.services.UserService
+import com.gmail.marcosav2010.utils.ImageSaver
 import org.kodein.di.DI
 import org.kodein.di.instance
 import java.util.regex.Pattern
 
-class UserFormValidator(di: DI) : Validator<UserForm>() {
+class UserRegisterFormValidator(di: DI) : Validator<UserForm>() {
 
     companion object {
         private val EMAIL_REGEX = Pattern
@@ -25,19 +26,21 @@ class UserFormValidator(di: DI) : Validator<UserForm>() {
     private val userService by di.instance<UserService>()
 
     override fun validation(): ValidationContext.(UserForm) -> Unit = {
-        mandatory("repeatedEmail", it.repeatedEmail)
-        mandatory("repeatedPassword", it.repeatedPassword)
         mandatory("name", it.name)
         mandatory("surname", it.surname)
         mandatory("email", it.email)
         mandatory("nickname", it.nickname)
         mandatory("password", it.password)
+        mandatory("repeatedPassword", it.repeatedPassword)
+        mandatory("repeatedEmail", it.repeatedEmail)
 
         notMatching("repeatedEmail", it.email, it.repeatedEmail)
         notMatching("repeatedPassword", it.password, it.repeatedPassword)
 
         minLength("nickname", it.nickname, Constants.MIN_NICKNAME_LENGTH)
         maxLength("nickname", it.nickname, Constants.MAX_NICKNAME_LENGTH)
+
+        maxLength("description", it.description, Constants.MAX_DESCRIPTION_LENGTH)
 
         minLength("password", it.password, Constants.MIN_PASSWORD_LENGTH)
 
@@ -47,18 +50,20 @@ class UserFormValidator(di: DI) : Validator<UserForm>() {
 
         it.profileImage?.let { i ->
             if (allowedImageExtension("profile_image", it.profileImageExt!!))
-                check("profile_image", i.toByteArray().size > Constants.MAX_USER_IMAGE_BYTE_SIZE, "max_size")
+                check(
+                    "profile_image",
+                    ImageSaver.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
+                    "max_size"
+                )
         }
 
-        if (!it.editing) {
-            format("email", !isValidEmail(it.email))
-            existing("email", userService.findByEmail(it.email) != null)
-            existing("nickname", userService.findByEmail(it.nickname) != null)
-        }
+        format("email", !isValidEmail(it.email))
+        existing("email", userService.findByEmail(it.email) != null)
+        existing("nickname", userService.findByEmail(it.nickname) != null)
     }
 
     private fun isValidEmail(email: String) = EMAIL_REGEX.matcher(email).find()
-
-    fun ValidationContext.allowedImageExtension(field: String, current: String): Boolean =
-        (current in Constants.ALLOWED_IMAGE_EXT).also { check(field, it, "invalid_img_format") }
 }
+
+fun ValidationContext.allowedImageExtension(field: String, current: String): Boolean =
+    (current in Constants.ALLOWED_IMAGE_EXT).also { check(field, it, "invalid_img_format") }

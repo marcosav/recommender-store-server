@@ -50,5 +50,5 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var amount by CartProducts.amount
     var lastUpdated by CartProducts.lastUpdated
 
-    fun toCartProduct() = CartProduct(id.value, product.toProduct(), user.id.value, amount, lastUpdated)
+    fun toCartProduct() = CartProduct(id.value, product.toProduct()/*, user.id.value*/, amount/*, lastUpdated*/)
 }

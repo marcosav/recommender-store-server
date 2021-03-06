@@ -20,6 +20,7 @@ object Products : LongIdTable() {
     val stock = integer("stock")
     val user = reference("user", Users)
     val visits = integer("visits").default(0)
+    val rating = double("rating").default(5.0)
     val category = reference("category", ProductCategories)
     val imgUris = varchar("img_uris", 3000)
     val hidden = bool("hidden").default(false)
@@ -33,7 +34,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun add(product: Product) =
             new {
                 name = product.name
-                product.description?.let { description = it }
+                description = product.description
                 price = product.price
                 stock = product.stock
                 category = ProductCategoryEntity[product.category.id]
@@ -46,7 +47,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun update(product: Product) =
             ProductEntity[product.id!!].apply {
                 name = product.name
-                product.description?.let { description = it }
+                description = product.description
                 price = product.price
                 stock = product.stock
                 category = ProductCategoryEntity[product.category.id]
@@ -94,6 +95,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var price by Products.price
     var stock by Products.stock
     var visits by Products.visits
+    var rating by Products.rating
     var imgUris by Products.imgUris
     var hidden by Products.hidden
     var deleted by Products.deleted
@@ -114,7 +116,8 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             lastUpdated,
             date,
             visits,
-            deleted,
+            rating,
+            //deleted,
             user.id.value
         )
 }

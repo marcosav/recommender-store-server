@@ -1,15 +1,19 @@
 package com.gmail.marcosav2010.model
 
+import com.google.gson.Gson
 import io.ktor.auth.*
-import java.util.*
 
 data class Session(
-    val sessionId: UUID,
+    val sessionId: String,
     var userId: Long?,
     var role: Role,
-    var cart: MutableList<CartProduct>? = mutableListOf()
-) :
-    Principal {
+    var cart: SessionCart? = mutableListOf()
+) : Principal {
 
     val isAdmin: Boolean get() = role == Role.ADMIN
 }
+
+typealias SessionCart = MutableList<CartProduct>
+
+// TODO: test this
+fun SessionCart.toJSON(): String = Gson().toJson(this)

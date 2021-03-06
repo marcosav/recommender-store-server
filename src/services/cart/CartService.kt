@@ -10,23 +10,27 @@ class CartService : ICartService {
         CartProductEntity.findByUser(userId).map { it.toCartProduct() }
     }
 
-    override fun setProductAmount(userId: Long, productId: Long, amount: Long): CartProduct? = transaction {
-        if (amount == 0L) {
+    override fun setProductAmount(userId: Long, productId: Long, amount: Long): Any? = transaction {
+        if (amount == 0L)
             remove(userId, productId)
-            null
-        } else
+        else
             CartProductEntity.add(userId, productId, amount).toCartProduct()
+
+        null
     }
 
-    override fun addMultipleItems(userId: Long, items: List<CartProduct>) = transaction {
+    override fun addMultipleItems(userId: Long, items: List<CartProduct>): Unit? = transaction {
         items.forEach { it.product.id?.let { id -> CartProductEntity.add(userId, id, it.amount) } }
+        null
     }
 
-    override fun remove(userId: Long, productId: Long): Unit = transaction {
+    override fun remove(userId: Long, productId: Long): Unit? = transaction {
         CartProductEntity.delete(userId, productId)
+        null
     }
 
-    override fun clear(userId: Long): Unit = transaction {
+    override fun clear(userId: Long): Unit? = transaction {
         CartProductEntity.clear(userId)
+        null
     }
 }

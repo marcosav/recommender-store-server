@@ -1,19 +1,13 @@
 package com.gmail.marcosav2010
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
 import io.ktor.http.*
 import io.ktor.locations.*
-import io.ktor.sessions.*
-import io.ktor.features.*
-import io.ktor.auth.*
-import io.ktor.gson.*
-import kotlin.test.*
 import io.ktor.server.testing.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ApplicationTest {
+    @KtorExperimentalLocationsAPI
     @Test
     fun testRoot() {
         withTestApplication({ module(testing = true) }) {
