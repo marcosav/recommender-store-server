@@ -31,7 +31,7 @@ fun Route.signup() {
         }
     }
 
-    route("/edit") {
+    route("/profile/edit") {
         put<UserForm> {
             userEditFormValidator.validate(it)
 

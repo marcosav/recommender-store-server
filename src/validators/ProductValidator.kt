@@ -3,6 +3,7 @@ package com.gmail.marcosav2010.validators
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.ProductForm
 import com.gmail.marcosav2010.services.ProductService
+import com.gmail.marcosav2010.utils.ImageSaver
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -24,12 +25,15 @@ class ProductValidator(di: DI) : Validator<ProductForm>() {
 
         check("category", productService.findCategoryById(it.category) == null, "invalid")
 
-        // TODO: check images
-        // img amount
-        /*val userListType: Type = object : TypeToken<List<String>>() {}.type
-        val uris = Gson().fromJson<List<String>>(it.imgUris, userListType)
+        // TODO: improve checking check multipart
 
-        check("images", uris.size > Constants.MAX_IMAGE_BYTE_SIZE, "a")*/
-        // img size
+        check("image", it.image.size > Constants.MAX_IMAGES_PER_PRODUCT, "amount.${Constants.MAX_IMAGES_PER_PRODUCT}")
+
+        for (i in 0..it.image.size)
+            if (allowedImageExtension("image", it.imageExt[i])) {
+                val c = ImageSaver.calculateOriginalByteSize(it.image[i]) > Constants.MAX_IMAGE_BYTE_SIZE
+                check("image", c, "max_size")
+                if (c) break
+            }
     }
 }

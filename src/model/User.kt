@@ -20,7 +20,7 @@ data class User(
 data class PublicUser(
     val id: Long,
     val nickname: String,
-    val description: String?,
+    val description: String,
     val profileImgUri: String?,
     val registerDate: Instant
 )

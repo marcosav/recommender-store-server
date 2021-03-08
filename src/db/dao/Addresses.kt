@@ -5,6 +5,7 @@ import com.gmail.marcosav2010.model.Address
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.ReferenceOption
 
 object Addresses : LongIdTable() {
     val recipient = varchar("recipient", Constants.MAX_ADDRESS_RECIPIENT_LENGTH)
@@ -14,7 +15,7 @@ object Addresses : LongIdTable() {
     val country = varchar("country", Constants.MAX_ADDRESS_COUNTRY_LENGTH)
     val address = varchar("address", Constants.MAX_ADDRESS_LENGTH)
     val phone = varchar("phone", Constants.MAX_ADDRESS_PHONE_LENGTH)
-    val user = reference("user", Users)
+    val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
 }
 
 class AddressEntity(id: EntityID<Long>) : LongEntity(id) {

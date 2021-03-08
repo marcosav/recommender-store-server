@@ -4,7 +4,7 @@ import com.gmail.marcosav2010.model.CartProduct
 
 interface ICartService {
 
-    fun setProductAmount(userId: Long, productId: Long, amount: Long): Any?
+    fun updateProductAmount(userId: Long, productId: Long, amount: Long, add: Boolean): Any?
 
     fun addMultipleItems(userId: Long, items: List<CartProduct>): Any?
 

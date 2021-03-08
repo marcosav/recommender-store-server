@@ -15,13 +15,13 @@ class SessionCartService(di: DI, private val session: Session) : ICartService {
 
     private val cart: SessionCart = session.cart!!
 
-    override fun setProductAmount(userId: Long, productId: Long, amount: Long): String {
-        if (amount == 0L) {
+    override fun updateProductAmount(userId: Long, productId: Long, amount: Long, add: Boolean): String {
+        if (!add && amount == 0L) {
             remove(userId, productId)
 
         } else with(cart.find { it.id == productId }) {
             if (this != null)
-                this.amount = amount
+                this.amount = if (add) this.amount + amount else amount
             else
                 productService.findById(productId)?.let { cart.add(CartProduct(null, it, amount)) }
         }

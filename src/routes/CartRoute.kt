@@ -40,10 +40,11 @@ fun Route.cart() {
 
             cartUpdateValidator.validate(it)
 
-            val cart = getCartService(loggedCS).setProductAmount(
+            val cart = getCartService(loggedCS).updateProductAmount(
                 session.userId!!,
                 it.productId,
-                it.amount
+                it.amount,
+                it.add
             )
 
             call.respond(cart ?: HttpStatusCode.OK)
@@ -68,4 +69,4 @@ private fun PipelineContext<*, ApplicationCall>.getCartService(
 
 data class DeleteCartProduct(val productId: Long)
 
-data class UpdateCartProduct(val userId: Long, val productId: Long, val amount: Long)
+data class UpdateCartProduct(val productId: Long, val amount: Long, val add: Boolean = false)

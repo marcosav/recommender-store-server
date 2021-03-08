@@ -8,9 +8,12 @@ import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.ImageSaver
 import com.gmail.marcosav2010.validators.ProductValidator
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.locations.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
@@ -26,11 +29,10 @@ fun Route.product() {
 
         post<ProductForm> {
             assertIdentified()
-
             productValidator.validate(it)
 
             var product = it.toProduct(session.userId!!)
-            // TODO: update images
+            it.image.forEachIndexed { i, im -> it.images[i] = ImageSaver.process(im, it.imageExt[i]) }
             product = productService.add(product)
 
             call.respond(product)
@@ -67,7 +69,7 @@ fun Route.product() {
             productValidator.validate(it)
 
             var product = it.toProduct()
-            // TODO: update images
+            it.image.forEachIndexed { i, im -> it.images[i] = ImageSaver.process(im, it.imageExt[i]) }
             product = productService.update(product)
 
             call.respond(product)
@@ -106,12 +108,17 @@ data class ProductForm(
     val price: Double,
     val stock: Int,
     val category: Long,
-    val images: String,
-    val hidden: Boolean
+    val hidden: Boolean,
+    val image: List<String>,
+    val imageExt: List<String>
 ) {
+    val images = mutableListOf<String>()
+
+    // TODO: test this
+    private fun imagesToJSON() = Gson().toJson(images)
 
     fun toProduct(userId: Long? = null) =
-        Product(id, name, price, stock, ProductCategory(category), images, hidden, description, userId = userId)
+        Product(id, name, price, stock, ProductCategory(category), imagesToJSON(), hidden, description, userId = userId)
 }
 
 @KtorExperimentalLocationsAPI

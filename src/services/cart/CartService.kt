@@ -10,10 +10,14 @@ class CartService : ICartService {
         CartProductEntity.findByUser(userId).map { it.toCartProduct() }
     }
 
-    override fun setProductAmount(userId: Long, productId: Long, amount: Long): Any? = transaction {
-        if (amount == 0L)
-            remove(userId, productId)
-        else
+    override fun updateProductAmount(userId: Long, productId: Long, amount: Long, add: Boolean): Any? = transaction {
+        val current = CartProductEntity.findByUserAndProduct(userId, productId).firstOrNull()
+        if (current != null) {
+            if (amount > 0 && add)
+                CartProductEntity.increaseAmount(current.id.value, amount)
+            else if (amount == 0L && !add)
+                remove(userId, productId)
+        } else if (amount > 0L)
             CartProductEntity.add(userId, productId, amount).toCartProduct()
 
         null

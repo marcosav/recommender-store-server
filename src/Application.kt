@@ -45,7 +45,7 @@ fun Application.module(testing: Boolean = false) {
         /*header(HttpHeaders.Authorization)
         allowCredentials = true*/
 
-        //anyHost() // Don't do this in production if possible. Try to limit it.
+        anyHost() // Don't do this in production if possible. Try to limit it.
     }
 
     di {

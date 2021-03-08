@@ -49,7 +49,7 @@ fun Route.favorites() {
             val userService by di().instance<UserService>()
 
             get {
-                call.respond(favoriteService.findVendorsByUser(session.userId!!))
+                call.respond(favoriteService.findVendorsByUser(session.userId!!).map { it.toPublicUser() })
             }
 
             post<AddFavorite> {
