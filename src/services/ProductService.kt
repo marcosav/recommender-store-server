@@ -24,21 +24,23 @@ class ProductService {
         ProductCategoryEntity.all().map { it.toCategory() }
     }
 
-    fun findByName(name: String, category: Long?, size: Int, offset: Int): Paged<Product> =
+    fun findByName(name: String, category: Long?, size: Int, offset: Int): Paged<Product> = transaction {
         ProductEntity.findByName(name, category).paged(
             { it.toProduct() },
             size,
             offset,
             Pair(Products.lastUpdated, SortOrder.DESC)
         )
+    }
 
-    fun findByVendor(userId: Long, shown: Boolean, size: Int, offset: Int): Paged<Product> =
+    fun findByVendor(userId: Long, shown: Boolean, size: Int, offset: Int): Paged<Product> = transaction {
         ProductEntity.findByVendor(userId, shown).paged(
             { it.toProduct() },
             size,
             offset,
             Pair(Products.lastUpdated, SortOrder.DESC)
         )
+    }
 
     fun isSoldBy(productId: Long, userId: Long): Boolean = transaction {
         ProductEntity.findByIdNotDeleted(productId)?.user?.id?.value == userId

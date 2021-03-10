@@ -49,5 +49,6 @@ object Constants {
     /* */
     const val SESSION_DURATION = 7 * 24 * 3600L
     const val USER_ID_CLAIM = "uid"
+    const val USERNAME_CLAIM = "username"
     const val CART_CLAIM = "cart"
 }

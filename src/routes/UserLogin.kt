@@ -1,10 +1,12 @@
 package com.gmail.marcosav2010.routes
 
+import com.gmail.marcosav2010.model.PublicUser
 import com.gmail.marcosav2010.services.AuthenticationService
 import com.gmail.marcosav2010.services.RoleService
 import com.gmail.marcosav2010.services.UserService
 import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.utils.BCryptEncoder
 import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.response.*
@@ -24,17 +26,27 @@ fun Route.login() {
         if (it.username.isEmpty() || it.password.isEmpty())
             throw UnauthorizedException()
 
-        val matched = userService.findByUsernameAndPassword(it.username, it.password)
+        val matched = userService.findByUsername(it.username)
         if (matched != null) {
+            if (!BCryptEncoder.verify(it.password, matched.password))
+                throw UnauthorizedException()
+
             roleService.findForUser(matched.id!!, true) ?: throw UnauthorizedException()
 
             session.cart?.let { c -> cartService.addMultipleItems(matched.id, c) }
 
-            call.respond(authenticationService.token(session.sessionId, null, matched.id))
+            call.respond(
+                LoginResponse(
+                    authenticationService.token(session.sessionId, null, matched.id, matched.nickname),
+                    matched.toPublicUser()
+                )
+            )
 
         } else throw UnauthorizedException()
     }
 }
+
+data class LoginResponse(val token: String, val user: PublicUser)
 
 @KtorExperimentalLocationsAPI
 @Location("/login")

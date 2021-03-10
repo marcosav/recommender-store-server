@@ -60,10 +60,9 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
 
         fun findByExactNickname(nickname: String) = find { Users.nickname eq nickname }.firstOrNull()
 
-        fun findByUsernameAndPassword(username: String, password: String) =
+        fun findByUsername(username: String) =
             find {
-                ((Users.nickname eq username).or(Users.email eq username))
-                    .and(Users.password eq password).and(not(Users.deleted))
+                ((Users.nickname eq username).or(Users.email eq username)).and(not(Users.deleted))
             }.firstOrNull()
 
         fun findByNickname(nickname: String) = find { (Users.nickname like "%$nickname%") and not(Users.deleted) }

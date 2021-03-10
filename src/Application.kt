@@ -42,8 +42,8 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Put)
         method(HttpMethod.Delete)
 
-        /*header(HttpHeaders.Authorization)
-        allowCredentials = true*/
+        header(HttpHeaders.Authorization)
+        allowCredentials = true
 
         anyHost() // Don't do this in production if possible. Try to limit it.
     }

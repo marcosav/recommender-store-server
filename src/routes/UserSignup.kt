@@ -27,7 +27,9 @@ fun Route.signup() {
             it.profileImage?.let { i -> it.profileImage = ImageSaver.process(i, it.profileImageExt!!) }
 
             userService.add(it.toUser())
-            call.respond(HttpStatusCode.OK)
+
+            // TODO: test this
+            call.respondRedirect("$API_ROUTE${application.locations.href(Login(it.nickname, it.password))}")
         }
     }
 

@@ -11,9 +11,7 @@ import com.gmail.marcosav2010.validators.ProductValidator
 import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.locations.*
-import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
@@ -90,10 +88,9 @@ fun Route.product() {
 
         get<ProductPath.Details> {
             val product = productService.findById(it.base.id)
-
-            val userId = session.userId!!
+            
             val admin = session.isAdmin
-            if (product == null || (product.userId != userId && product.hidden && !admin))
+            if (product == null || (product.hidden && product.userId != session.userId && !admin))
                 throw NotFoundException()
 
             call.respond(product)
@@ -125,7 +122,7 @@ data class ProductForm(
 @Location("/{id}")
 data class ProductPath(val id: Long) {
 
-    @Location("/")
+    //@Location("/")
     data class Details(val base: ProductPath)
 
     @Location("/")

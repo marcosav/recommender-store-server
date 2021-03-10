@@ -33,4 +33,6 @@ private fun createTables() = transaction {
         ProductReports,
         UserRoles
     )
+
+    //SchemaUtils.populate()
 }

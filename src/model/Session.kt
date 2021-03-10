@@ -6,6 +6,7 @@ import io.ktor.auth.*
 data class Session(
     val sessionId: String,
     var userId: Long?,
+    var username: String?,
     var role: Role,
     var cart: SessionCart? = mutableListOf()
 ) : Principal {

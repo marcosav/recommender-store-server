@@ -27,13 +27,12 @@ class UserService(di: DI) {
         UserEntity.findByExactNickname(nickname)?.toUser()
     }
 
-    fun findByNickname(nickname: String, size: Int, offset: Int): Paged<PublicUser> =
+    fun findByNickname(nickname: String, size: Int, offset: Int): Paged<PublicUser> = transaction {
         UserEntity.findByNickname(nickname).paged({ it.toUser().toPublicUser() }, size, offset)
+    }
 
-    fun findByUsernameAndPassword(username: String, password: String): User? =
-        BCryptEncoder.encode(password).let {
-            transaction { UserEntity.findByUsernameAndPassword(username, it)?.toUser() }
-        }
+    fun findByUsername(username: String): User? =
+        transaction { UserEntity.findByUsername(username)?.toUser() }
 
     fun findUserAddresses(id: Long): List<Address> = transaction {
         UserEntity.findByIdNotDeleted(id)?.addresses?.map { it.toAddress() } ?: emptyList()
