@@ -20,7 +20,7 @@ fun Route.auth() {
         if (safeSession != null)
             return@post call.respond(HttpStatusCode.NoContent)
 
-        val token = authenticationService.token(UUID.randomUUID().toString())
+        val token = authenticationService.token(UUID.randomUUID().toString(), emptyList())
         call.respond(token)
     }
 }

@@ -3,16 +3,12 @@ package com.gmail.marcosav2010.routes
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.cart.CartService
-import com.gmail.marcosav2010.services.cart.ICartService
-import com.gmail.marcosav2010.services.cart.SessionCartService
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.CartUpdateValidator
 import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.pipeline.*
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 
@@ -21,7 +17,7 @@ fun Route.cart() {
 
     route("/cart") {
 
-        val loggedCS by di().instance<CartService>()
+        val cartService by di().instance<CartService>()
         val productService by di().instance<ProductService>()
 
         val cartUpdateValidator by di().instance<CartUpdateValidator>()
@@ -29,7 +25,7 @@ fun Route.cart() {
         get {
             assertIdentified()
 
-            val cart = loggedCS.findByUser(session.userId!!)
+            val cart = cartService.findByUser(session.userId!!)
             call.respond(cart)
         }
 
@@ -40,32 +36,31 @@ fun Route.cart() {
 
             cartUpdateValidator.validate(it)
 
-            val cart = getCartService(loggedCS).updateProductAmount(
-                session.userId!!,
+            val cart = cartService.updateProductAmount(
+                session,
                 it.productId,
                 it.amount,
                 it.add
             )
 
-            call.respond(cart ?: HttpStatusCode.OK)
+            call.respond(cart.handleCart())
         }
 
         delete<DeleteCartProduct> {
-            val cart = getCartService(loggedCS).remove(it.productId, session.userId!!)
-            call.respond(cart ?: HttpStatusCode.OK)
+            val cart = cartService.remove(session, it.productId)
+            call.respond(cart.handleCart())
         }
 
         delete("/all") {
-            val cart = getCartService(loggedCS).clear(session.userId!!)
-            call.respond(cart ?: HttpStatusCode.OK)
+            val cart = cartService.clear(session)
+            call.respond(cart.handleCart())
         }
     }
 }
 
-private fun PipelineContext<*, ApplicationCall>.getCartService(
-    loggedCartService: CartService
-): ICartService =
-    if (session.userId != null) loggedCartService else SessionCartService(di(), session)
+private fun String.handleCart() = CartResponse(this)
+
+data class CartResponse(val token: String)
 
 data class DeleteCartProduct(val productId: Long)
 

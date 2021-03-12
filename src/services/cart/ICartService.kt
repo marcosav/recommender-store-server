@@ -1,14 +1,13 @@
 package com.gmail.marcosav2010.services.cart
 
-import com.gmail.marcosav2010.model.CartProduct
+import com.gmail.marcosav2010.model.Session
+import com.gmail.marcosav2010.model.SessionCart
 
 interface ICartService {
 
-    fun updateProductAmount(userId: Long, productId: Long, amount: Long, add: Boolean): Any?
+    fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean): SessionCart
 
-    fun addMultipleItems(userId: Long, items: List<CartProduct>): Any?
+    fun remove(session: Session, productId: Long): SessionCart
 
-    fun remove(userId: Long, productId: Long): Any?
-
-    fun clear(userId: Long): Any?
+    fun clear(session: Session): SessionCart
 }

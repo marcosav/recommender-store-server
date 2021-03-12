@@ -10,6 +10,6 @@ fun DI.MainBuilder.setupServices() {
     bind<UserService>() with singleton { UserService(di) }
     bind<RoleService>() with singleton { RoleService() }
     bind<ProductService>() with singleton { ProductService() }
-    bind<CartService>() with singleton { CartService() }
+    bind<CartService>() with singleton { CartService(di) }
     bind<FavoriteService>() with singleton { FavoriteService() }
 }

@@ -24,12 +24,12 @@ class AuthenticationService {
     val jwtVerifier: JWTVerifier =
         (JWT.require(jwtAlgorithm) as JWTVerifier.BaseVerification).build { Date(clock.millis()) }
 
-    fun token(subject: String, cart: SessionCart? = null, userId: Long? = null, username: String? = null): String =
+    fun token(subject: String, cart: SessionCart, userId: Long? = null, username: String? = null): String =
         JWT.create()
             .withSubject(subject)
             .apply { userId?.let { withClaim(Constants.USER_ID_CLAIM, it) } }
             .apply { username?.let { withClaim(Constants.USERNAME_CLAIM, it) } }
-            .apply { cart?.let { withClaim(Constants.CART_CLAIM, it.toJSON()) } }
+            .apply { withClaim(Constants.CART_CLAIM, cart.toJSON()) }
             .withExpiresAt(Date.from(clock.instant().plusSeconds(Constants.SESSION_DURATION)))
             .sign(jwtAlgorithm)
 }
@@ -51,14 +51,14 @@ fun Authentication.Configuration.setupJWT(di: DI) {
             val sessionId = it.payload.subject
             val userId = it.payload.claims[Constants.USER_ID_CLAIM]?.asLong()
             val username = it.payload.claims[Constants.USERNAME_CLAIM]?.asString()
+            val cart = it.payload.getClaim(Constants.CART_CLAIM).runCatching { asList(CartProduct::class.java) }
+                .getOrNull()
+            requireNotNull(cart)
 
             if (userId != null)
-                roleService.findForUser(userId)?.let { r -> Session(sessionId, userId, username, r) }
-            else {
-                val cart = it.payload.getClaim(Constants.CART_CLAIM).runCatching { asList(CartProduct::class.java) }
-                    .getOrNull()
+                roleService.findForUser(userId)?.let { r -> Session(sessionId, userId, username, r, cart) }
+            else
                 Session(sessionId, null, null, Role.ANONYMOUS, cart)
-            }
         }
     }
 }

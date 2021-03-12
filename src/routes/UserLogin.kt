@@ -33,11 +33,11 @@ fun Route.login() {
 
             roleService.findForUser(matched.id!!, true) ?: throw UnauthorizedException()
 
-            session.cart?.let { c -> cartService.addMultipleItems(matched.id, c) }
+            val cart = session.cart.let { c -> cartService.mergeCarts(matched.id, c) }
 
             call.respond(
                 LoginResponse(
-                    authenticationService.token(session.sessionId, null, matched.id, matched.nickname),
+                    authenticationService.token(session.sessionId, cart, matched.id, matched.nickname),
                     matched.toPublicUser()
                 )
             )

@@ -44,6 +44,9 @@ object Constants {
     const val MAX_PRODUCT_REPORT_DESC_LENGTH = 300
 
     /*  */
+    const val CART_MAX_AMOUNT = 40
+
+    /*  */
     const val PRODUCTS_PER_PAGE = 20
 
     /* */

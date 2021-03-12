@@ -8,13 +8,13 @@ data class Session(
     var userId: Long?,
     var username: String?,
     var role: Role,
-    var cart: SessionCart? = mutableListOf()
+    var cart: SessionCart = listOf()
 ) : Principal {
 
     val isAdmin: Boolean get() = role == Role.ADMIN
 }
 
-typealias SessionCart = MutableList<CartProduct>
+typealias SessionCart = List<CartProduct>
 
 // TODO: test this
 fun SessionCart.toJSON(): String = Gson().toJson(this)

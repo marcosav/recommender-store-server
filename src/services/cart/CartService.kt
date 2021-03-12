@@ -1,40 +1,33 @@
 package com.gmail.marcosav2010.services.cart
 
-import com.gmail.marcosav2010.db.dao.CartProductEntity
-import com.gmail.marcosav2010.model.CartProduct
-import org.jetbrains.exposed.sql.transactions.transaction
+import com.gmail.marcosav2010.model.Session
+import com.gmail.marcosav2010.model.SessionCart
+import com.gmail.marcosav2010.services.AuthenticationService
+import org.kodein.di.DI
+import org.kodein.di.instance
 
-class CartService : ICartService {
+class CartService(di: DI) {
 
-    fun findByUser(userId: Long): List<CartProduct> = transaction {
-        CartProductEntity.findByUser(userId).map { it.toCartProduct() }
-    }
+    private val authService by di.instance<AuthenticationService>()
 
-    override fun updateProductAmount(userId: Long, productId: Long, amount: Long, add: Boolean): Any? = transaction {
-        val current = CartProductEntity.findByUserAndProduct(userId, productId).firstOrNull()
-        if (current != null) {
-            if (amount > 0 && add)
-                CartProductEntity.increaseAmount(current.id.value, amount)
-            else if (amount == 0L && !add)
-                remove(userId, productId)
-        } else if (amount > 0L)
-            CartProductEntity.add(userId, productId, amount).toCartProduct()
+    private val loggedCS = LoggedCartService()
+    private val sessionCS = SessionCartService(di)
 
-        null
-    }
+    fun findByUser(userId: Long): SessionCart = loggedCS.findByUser(userId)
 
-    override fun addMultipleItems(userId: Long, items: List<CartProduct>): Unit? = transaction {
-        items.forEach { it.product.id?.let { id -> CartProductEntity.add(userId, id, it.amount) } }
-        null
-    }
+    fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean) =
+        service(session).updateProductAmount(session, productId, amount, add).updatedToken(session)
 
-    override fun remove(userId: Long, productId: Long): Unit? = transaction {
-        CartProductEntity.delete(userId, productId)
-        null
-    }
+    fun mergeCarts(userId: Long, items: SessionCart) =
+        loggedCS.mergeCarts(userId, items)
 
-    override fun clear(userId: Long): Unit? = transaction {
-        CartProductEntity.clear(userId)
-        null
-    }
+    fun remove(session: Session, productId: Long) =
+        service(session).remove(session, productId).updatedToken(session)
+
+    fun clear(session: Session) = service(session).clear(session).updatedToken(session)
+
+    private fun service(session: Session) = if (session.userId != null) loggedCS else sessionCS
+
+    private fun SessionCart.updatedToken(session: Session) =
+        authService.token(session.sessionId, this, session.userId, session.username)
 }
