@@ -3,12 +3,12 @@ package com.gmail.marcosav2010.routes
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
+import com.gmail.marcosav2010.model.ProductImage
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.ImageSaver
 import com.gmail.marcosav2010.validators.ProductValidator
-import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -88,7 +88,7 @@ fun Route.product() {
 
         get<ProductPath.Details> {
             val product = productService.findById(it.base.id)
-            
+
             val admin = session.isAdmin
             if (product == null || (product.hidden && product.userId != session.userId && !admin))
                 throw NotFoundException()
@@ -111,21 +111,26 @@ data class ProductForm(
 ) {
     val images = mutableListOf<String>()
 
-    // TODO: test this
-    private fun imagesToJSON() = Gson().toJson(images)
-
     fun toProduct(userId: Long? = null) =
-        Product(id, name, price, stock, ProductCategory(category), imagesToJSON(), hidden, description, userId = userId)
+        Product(
+            id,
+            name,
+            price,
+            stock,
+            ProductCategory(category),
+            hidden,
+            description,
+            images.mapIndexed { i, s -> ProductImage(i.toByte(), s) },
+            userId = userId
+        )
 }
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
 data class ProductPath(val id: Long) {
 
-    //@Location("/")
     data class Details(val base: ProductPath)
 
-    @Location("/")
     data class Delete(val base: ProductPath)
 }
 

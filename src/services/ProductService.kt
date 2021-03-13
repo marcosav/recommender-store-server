@@ -3,6 +3,7 @@ package com.gmail.marcosav2010.services
 import com.gmail.marcosav2010.db.dao.ProductCategoryEntity
 import com.gmail.marcosav2010.db.dao.ProductEntity
 import com.gmail.marcosav2010.db.dao.Products
+import com.gmail.marcosav2010.model.PreviewProduct
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
 import db.Paged
@@ -16,6 +17,10 @@ class ProductService {
         ProductEntity.findByIdNotDeleted(id)?.toProduct()
     }
 
+    fun findByIdPreview(id: Long): PreviewProduct? = transaction {
+        ProductEntity.findByIdNotDeleted(id)?.toPreviewProduct()
+    }
+
     fun findCategoryById(id: Long): ProductCategory? = transaction {
         ProductCategoryEntity.findById(id)?.toCategory()
     }
@@ -24,18 +29,18 @@ class ProductService {
         ProductCategoryEntity.all().map { it.toCategory() }
     }
 
-    fun findByName(name: String, category: Long?, size: Int, offset: Int): Paged<Product> = transaction {
+    fun findByName(name: String, category: Long?, size: Int, offset: Int): Paged<PreviewProduct> = transaction {
         ProductEntity.findByName(name, category).paged(
-            { it.toProduct() },
+            { it.toPreviewProduct() },
             size,
             offset,
             Pair(Products.lastUpdated, SortOrder.DESC)
         )
     }
 
-    fun findByVendor(userId: Long, shown: Boolean, size: Int, offset: Int): Paged<Product> = transaction {
+    fun findByVendor(userId: Long, shown: Boolean, size: Int, offset: Int): Paged<PreviewProduct> = transaction {
         ProductEntity.findByVendor(userId, shown).paged(
-            { it.toProduct() },
+            { it.toPreviewProduct() },
             size,
             offset,
             Pair(Products.lastUpdated, SortOrder.DESC)

@@ -16,18 +16,18 @@ class SessionCartService(di: DI) : ICartService {
         if (!add && amount == 0L) {
             return remove(session, productId)
 
-        } else with(cart.find { it.id == productId }) {
+        } else with(cart.find { it.product.id == productId }) {
             if (this != null)
                 this.amount = if (add) this.amount + amount else amount
             else
-                productService.findById(productId)?.let { cart.add(CartProduct(null, it, amount)) }
+                productService.findByIdPreview(productId)?.let { cart.add(CartProduct(it, amount)) }
         }
 
         return cart
     }
 
     override fun remove(session: Session, productId: Long): SessionCart =
-        session.mCart.apply { removeIf { it.id == productId } }
+        session.mCart.apply { removeIf { it.product.id == productId } }
 
     override fun clear(session: Session): SessionCart = emptyList()
 

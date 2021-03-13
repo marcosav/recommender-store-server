@@ -8,13 +8,28 @@ data class Product(
     val price: Double,
     val stock: Int,
     val category: ProductCategory,
-    val imgUris: String,
     val hidden: Boolean,
     val description: String,
+    val images: List<ProductImage> = emptyList(),
     val lastUpdated: Instant? = null,
     val date: Instant? = null,
     val visits: Int? = null,
     val rating: Double? = null,
     //val deleted: Boolean? = null,
     var userId: Long? = null
+)
+
+data class PreviewProduct(
+    val id: Long,
+    val name: String,
+    val price: Double,
+    val mainImage: String?,
+    val lastUpdated: Instant? = null,
+    val visits: Int? = null,
+    val rating: Double? = null
+)
+
+data class ProductImage(
+    val i: Byte,
+    val u: String
 )

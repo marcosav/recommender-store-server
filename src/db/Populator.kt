@@ -4,10 +4,7 @@ import com.gmail.marcosav2010.db.dao.ProductCategoryEntity
 import com.gmail.marcosav2010.db.dao.ProductEntity
 import com.gmail.marcosav2010.db.dao.UserEntity
 import com.gmail.marcosav2010.db.dao.UserRoles
-import com.gmail.marcosav2010.model.Product
-import com.gmail.marcosav2010.model.ProductCategory
-import com.gmail.marcosav2010.model.Role
-import com.gmail.marcosav2010.model.User
+import com.gmail.marcosav2010.model.*
 import com.gmail.marcosav2010.utils.BCryptEncoder
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
@@ -45,13 +42,15 @@ fun SchemaUtils.populate() {
                 Random.nextDouble(5.0, 1000.0),
                 Random.nextInt(0, 20),
                 ProductCategory(Random.nextLong(1, 8)),
-                "[]",
                 false,
                 "Nice product very nice bery nice, i love me gusta mucho $it",
                 userId = Random.nextLong(1, 100)
             )
         )
     }
+
+    val imageUris = listOf("a", "b")
+    val images = imageUris.mapIndexed { i, it -> ProductImage(i.toByte(), it) }
 
     (1..15L).forEach {
         ProductEntity.add(
@@ -61,9 +60,9 @@ fun SchemaUtils.populate() {
                 Random.nextDouble(5.0, 1000.0),
                 Random.nextInt(0, 20),
                 ProductCategory(Random.nextLong(1, 8)),
-                "[]",
                 false,
                 "hola este es mi primer segunto tercer y n-simo producto",
+                images,
                 userId = user.id.value
             )
         )

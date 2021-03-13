@@ -1,10 +1,12 @@
 package com.gmail.marcosav2010.db.dao
 
 import com.gmail.marcosav2010.Constants
+import com.gmail.marcosav2010.model.PreviewProduct
 import com.gmail.marcosav2010.model.Product
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.not
@@ -22,7 +24,6 @@ object Products : LongIdTable() {
     val visits = integer("visits").default(0)
     val rating = double("rating").default(5.0)
     val category = reference("category", ProductCategories)
-    val imgUris = varchar("img_uris", 3000)
     val hidden = bool("hidden").default(false)
     val deleted = bool("deleted").default(false)
 }
@@ -38,11 +39,10 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 price = product.price
                 stock = product.stock
                 category = ProductCategoryEntity[product.category.id]
-                imgUris = product.imgUris
                 hidden = product.hidden
 
                 user = UserEntity[product.userId!!]
-            }
+            }.also { p -> product.images.let { ProductImageEntity.add(p.id.value, it) } }
 
         fun update(product: Product) =
             ProductEntity[product.id!!].apply {
@@ -51,10 +51,14 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 price = product.price
                 stock = product.stock
                 category = ProductCategoryEntity[product.category.id]
-                imgUris = product.imgUris
                 hidden = product.hidden
 
                 lastUpdated = Instant.now()
+            }.also { p ->
+                product.images.let {
+                    ProductImageEntity.remove(p.id.value)
+                    ProductImageEntity.add(p.id.value, it)
+                }
             }
 
         fun delete(id: Long) {
@@ -96,28 +100,44 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var stock by Products.stock
     var visits by Products.visits
     var rating by Products.rating
-    var imgUris by Products.imgUris
     var hidden by Products.hidden
     var deleted by Products.deleted
 
     var user by UserEntity referencedOn Products.user
     var category by ProductCategoryEntity referencedOn Products.category
+    private val _images by ProductImageEntity referrersOn ProductImages.product
 
-    fun toProduct() =
-        Product(
+    private val images get() = _images.orderBy(Pair(ProductImages.index, SortOrder.ASC)).limit(Constants.MAX_IMAGES_PER_PRODUCT)
+
+    fun toProduct(): Product {
+        val images = images.map { it.toProductImage() }
+
+        return Product(
             id.value,
             name,
             price,
             stock,
             category.toCategory(),
-            imgUris,
             hidden,
             description,
+            images,
             lastUpdated,
             date,
             visits,
             rating,
             //deleted,
             user.id.value
+        )
+    }
+
+    fun toPreviewProduct() =
+        PreviewProduct(
+            id.value,
+            name,
+            price,
+            images.firstOrNull()?.uri,
+            lastUpdated,
+            visits,
+            rating
         )
 }

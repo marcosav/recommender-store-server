@@ -31,7 +31,8 @@ private fun createTables() = transaction {
         FavoriteVendors,
         CartProducts,
         ProductReports,
-        UserRoles
+        UserRoles,
+        ProductImages
     )
 
     //SchemaUtils.populate()

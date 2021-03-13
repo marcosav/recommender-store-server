@@ -16,7 +16,7 @@ object Users : LongIdTable() {
     val surname = varchar("surname", Constants.MAX_SURNAME_LENGTH)
     val email = varchar("email", Constants.MAX_EMAIL_LENGTH)
     val password = varchar("password", 255)
-    val profileImgUri = varchar("profile_img_uri", 255).nullable()
+    val profileImgUri = varchar("profile_img_uri", 250).nullable()
     val nickname = varchar("nickname", Constants.MAX_NICKNAME_LENGTH)
     val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH)
     val registerDate = timestamp("register_date").default(Instant.now())
