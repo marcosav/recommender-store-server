@@ -16,7 +16,8 @@ data class Product(
     val visits: Int? = null,
     val rating: Double? = null,
     //val deleted: Boolean? = null,
-    var userId: Long? = null
+    var userId: Long? = null,
+    var fav: Boolean? = null
 )
 
 data class PreviewProduct(
@@ -26,7 +27,8 @@ data class PreviewProduct(
     val mainImage: String?,
     val lastUpdated: Instant? = null,
     val visits: Int? = null,
-    val rating: Double? = null
+    val rating: Double? = null,
+    var fav: Boolean? = null
 )
 
 data class ProductImage(

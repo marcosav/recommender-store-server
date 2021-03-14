@@ -3,7 +3,7 @@ package com.gmail.marcosav2010.validators
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
 import com.gmail.marcosav2010.services.UserService
-import com.gmail.marcosav2010.utils.ImageSaver
+import com.gmail.marcosav2010.utils.ImageHandler
 import org.kodein.di.DI
 import org.kodein.di.instance
 import java.util.regex.Pattern
@@ -52,7 +52,7 @@ class UserRegisterFormValidator(di: DI) : Validator<UserForm>() {
             if (allowedImageExtension("profile_image", it.profileImageExt!!))
                 check(
                     "profile_image",
-                    ImageSaver.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
+                    ImageHandler.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
                     "max_size"
                 )
         }

@@ -2,7 +2,7 @@ package com.gmail.marcosav2010.validators
 
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
-import com.gmail.marcosav2010.utils.ImageSaver
+import com.gmail.marcosav2010.utils.ImageHandler
 
 class UserEditFormValidator : Validator<UserForm>() {
 
@@ -30,7 +30,7 @@ class UserEditFormValidator : Validator<UserForm>() {
             if (allowedImageExtension("profile_image", it.profileImageExt!!))
                 check(
                     "profile_image",
-                    ImageSaver.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
+                    ImageHandler.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
                     "max_size"
                 )
         }

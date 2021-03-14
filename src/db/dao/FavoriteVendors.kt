@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.db.dao
 
+import com.gmail.marcosav2010.model.PublicUser
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
@@ -21,12 +22,18 @@ class FavoriteVendorEntity(id: EntityID<Long>) : LongEntity(id) {
 
     companion object : BaseEntityClass<FavoriteVendorEntity>(FavoriteVendors) {
 
-        // TODO: check this
         fun findByUser(userId: Long) =
-            UserEntity.find {
-                Users.id inSubQuery (FavoriteVendors.slice(FavoriteVendors.id)
-                    .select { FavoriteVendors.user eq userId })
-            }.orderBy(Pair(FavoriteVendors.date, SortOrder.DESC))
+            Users.fullJoin(FavoriteVendors)
+                .select {
+                    not(Users.deleted).and(FavoriteVendors.user eq userId)
+                }.orderBy(Pair(Users.name, SortOrder.DESC))
+
+        inline val mapToUser
+            get(): (ResultRow) -> PublicUser = {
+                with(Users) {
+                    PublicUser(it[id].value, it[nickname], it[description], it[profileImgUri], it[registerDate])
+                }
+            }
 
         fun findByUserAndVendor(userId: Long, vendorId: Long) =
             find { (FavoriteVendors.user eq userId) and (FavoriteVendors.vendor eq vendorId) }

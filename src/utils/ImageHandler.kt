@@ -1,12 +1,14 @@
 package com.gmail.marcosav2010.utils
 
 import com.gmail.marcosav2010.Constants
+import java.awt.Image
+import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.file.Files
 import java.util.*
 
 
-object ImageSaver {
+object ImageHandler {
 
     private const val B64_BYTES_FACTOR = 1.334
 
@@ -27,5 +29,12 @@ object ImageSaver {
         Files.write(f.toPath(), decoded)
 
         return f.path
+    }
+
+    fun resizeImage(originalImage: BufferedImage, targetWidth: Int, targetHeight: Int): BufferedImage {
+        val resultingImage: Image = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT)
+        val outputImage = BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB)
+        outputImage.graphics.drawImage(resultingImage, 0, 0, null)
+        return outputImage
     }
 }

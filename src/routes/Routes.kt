@@ -1,7 +1,7 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.Constants
-import com.gmail.marcosav2010.utils.ImageSaver
+import com.gmail.marcosav2010.utils.ImageHandler
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.content.*
@@ -14,8 +14,8 @@ const val API_ROUTE = "/api/v${Constants.API_VERSION}"
 fun Application.setupRoutes() {
     routing {
         authenticate {
-            static(ImageSaver.STATIC_FILES_ROUTE) {
-                files(ImageSaver.IMG_FOLDER_ROUTE)
+            static(ImageHandler.STATIC_FILES_ROUTE) {
+                files(ImageHandler.IMG_FOLDER_ROUTE)
             }
         }
 

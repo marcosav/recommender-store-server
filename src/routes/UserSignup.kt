@@ -2,7 +2,7 @@ package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.model.User
 import com.gmail.marcosav2010.services.UserService
-import com.gmail.marcosav2010.utils.ImageSaver
+import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.validators.UserEditFormValidator
 import com.gmail.marcosav2010.validators.UserRegisterFormValidator
 import io.ktor.application.*
@@ -24,7 +24,7 @@ fun Route.signup() {
         post<UserForm> {
             userRegisterFormValidator.validate(it)
 
-            it.profileImage?.let { i -> it.profileImage = ImageSaver.process(i, it.profileImageExt!!) }
+            it.profileImage?.let { i -> it.profileImage = ImageHandler.process(i, it.profileImageExt!!) }
 
             userService.add(it.toUser())
 
@@ -37,7 +37,7 @@ fun Route.signup() {
         put<UserForm> {
             userEditFormValidator.validate(it)
 
-            it.profileImage?.let { i -> it.profileImage = ImageSaver.process(i, it.profileImageExt!!) }
+            it.profileImage?.let { i -> it.profileImage = ImageHandler.process(i, it.profileImageExt!!) }
 
             userService.update(it.toUser())
             call.respond(HttpStatusCode.OK)

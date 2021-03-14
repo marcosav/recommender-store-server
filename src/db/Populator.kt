@@ -39,7 +39,7 @@ fun SchemaUtils.populate() {
             Product(
                 null,
                 "P$it",
-                Random.nextDouble(5.0, 1000.0),
+                genPrice(),
                 Random.nextInt(0, 20),
                 ProductCategory(Random.nextLong(1, 8)),
                 false,
@@ -57,7 +57,7 @@ fun SchemaUtils.populate() {
             Product(
                 null,
                 "P$it",
-                Random.nextDouble(5.0, 1000.0),
+                genPrice(),
                 Random.nextInt(0, 20),
                 ProductCategory(Random.nextLong(1, 8)),
                 false,
@@ -73,3 +73,5 @@ fun SchemaUtils.populate() {
         it[role] = Role.ADMIN.id
     }
 }
+
+private fun genPrice() = "%.2f".format(Random.nextDouble(5.0, 1000.0)).toDouble()

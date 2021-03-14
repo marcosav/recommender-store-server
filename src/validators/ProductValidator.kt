@@ -3,7 +3,7 @@ package com.gmail.marcosav2010.validators
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.ProductForm
 import com.gmail.marcosav2010.services.ProductService
-import com.gmail.marcosav2010.utils.ImageSaver
+import com.gmail.marcosav2010.utils.ImageHandler
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -31,9 +31,11 @@ class ProductValidator(di: DI) : Validator<ProductForm>() {
 
         for (i in 0..it.image.size)
             if (allowedImageExtension("image", it.imageExt[i])) {
-                val c = ImageSaver.calculateOriginalByteSize(it.image[i]) > Constants.MAX_IMAGE_BYTE_SIZE
+                val c = ImageHandler.calculateOriginalByteSize(it.image[i]) > Constants.MAX_IMAGE_BYTE_SIZE
                 check("image", c, "max_size")
                 if (c) break
             }
+
+        it.price = "%.2f".format(it.price).toDouble()
     }
 }

@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.routes
 
+import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.services.FavoriteService
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.UserService
@@ -22,8 +23,15 @@ fun Route.favorites() {
         route("/products") {
             val productService by di().instance<ProductService>()
 
-            get {
-                call.respond(favoriteService.findProductsByUser(session.userId!!))
+            get<FavoriteList> {
+                val offset = it.page * Constants.PRODUCTS_PER_PAGE
+                val products = favoriteService.findProductsByUser(
+                    session.userId!!,
+                    Constants.PRODUCTS_PER_PAGE,
+                    offset
+                ).apply { items.onEach { p -> p.fav = true } }
+
+                call.respond(products)
             }
 
             post<AddFavorite> {
@@ -48,8 +56,15 @@ fun Route.favorites() {
         route("/vendors") {
             val userService by di().instance<UserService>()
 
-            get {
-                call.respond(favoriteService.findVendorsByUser(session.userId!!).map { it.toPublicUser() })
+            get<FavoriteList> {
+                val offset = it.page * Constants.PRODUCTS_PER_PAGE
+                val vendors = favoriteService.findVendorsByUser(
+                    session.userId!!,
+                    Constants.PRODUCTS_PER_PAGE,
+                    offset
+                )
+
+                call.respond(vendors)
             }
 
             post<AddFavorite> {
@@ -70,6 +85,8 @@ fun Route.favorites() {
         }
     }
 }
+
+data class FavoriteList(val page: Int = 0, val order: Int? = null)
 
 data class DeleteFavorite(val id: Long)
 

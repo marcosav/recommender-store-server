@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.db.dao
 
+import com.gmail.marcosav2010.model.PreviewProduct
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
@@ -21,12 +22,21 @@ class FavoriteProductEntity(id: EntityID<Long>) : LongEntity(id) {
 
     companion object : BaseEntityClass<FavoriteProductEntity>(FavoriteProducts) {
 
-        // TODO: check this
         fun findByUser(userId: Long) =
-            ProductEntity.find {
-                Products.id inSubQuery (FavoriteProducts.slice(FavoriteProducts.id)
-                    .select { FavoriteProducts.user eq userId })
-            }.orderBy(Pair(FavoriteProducts.date, SortOrder.DESC))
+            Products.fullJoin(FavoriteProducts).leftJoin(ProductImages)
+                .select {
+                    not(Products.deleted)
+                        .and((ProductImages.index.isNull()) or (ProductImages.index eq 0))
+                        .and(FavoriteProducts.user eq userId)
+                }
+                .orderBy(Pair(FavoriteProducts.date, SortOrder.DESC))
+
+        inline val mapToPreviewProduct
+            get(): (ResultRow) -> PreviewProduct = {
+                with(Products) {
+                    PreviewProduct(it[id].value, it[name], it[price], it[ProductImages.uri], fav = true)
+                }
+            }
 
         fun findByUserAndProduct(userId: Long, productId: Long) =
             find { (FavoriteProducts.user eq userId) and (FavoriteProducts.product eq productId) }

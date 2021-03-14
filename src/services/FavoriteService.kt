@@ -3,17 +3,26 @@ package com.gmail.marcosav2010.services
 import com.gmail.marcosav2010.db.dao.FavoriteProductEntity
 import com.gmail.marcosav2010.db.dao.FavoriteVendorEntity
 import com.gmail.marcosav2010.model.PreviewProduct
-import com.gmail.marcosav2010.model.User
+import com.gmail.marcosav2010.model.PublicUser
+import db.Paged
+import db.paged
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class FavoriteService {
-
-    fun findProductsByUser(userId: Long): List<PreviewProduct> = transaction {
-        FavoriteProductEntity.findByUser(userId).map { it.toPreviewProduct() }
+    fun findProductsByUser(userId: Long, size: Int, offset: Int): Paged<PreviewProduct> = transaction {
+        FavoriteProductEntity.findByUser(userId).paged(
+            FavoriteProductEntity.mapToPreviewProduct,
+            size,
+            offset
+        )
     }
 
-    fun findVendorsByUser(userId: Long): List<User> = transaction {
-        FavoriteVendorEntity.findByUser(userId).map { it.toUser() }
+    fun findVendorsByUser(userId: Long, size: Int, offset: Int): Paged<PublicUser> = transaction {
+        FavoriteVendorEntity.findByUser(userId).paged(
+            FavoriteVendorEntity.mapToUser,
+            size,
+            offset
+        )
     }
 
     fun removeProduct(productId: Long, userId: Long): Unit = transaction {
@@ -21,7 +30,7 @@ class FavoriteService {
     }
 
     fun addProduct(productId: Long, userId: Long): Unit = transaction {
-        if (FavoriteProductEntity.findByUserAndProduct(userId, productId).count() == 0L)
+        if (FavoriteProductEntity.findByUserAndProduct(userId, productId).empty())
             FavoriteProductEntity.add(userId, productId)
     }
 
@@ -30,7 +39,15 @@ class FavoriteService {
     }
 
     fun addVendor(vendorId: Long, userId: Long): Unit = transaction {
-        if (FavoriteVendorEntity.findByUserAndVendor(userId, vendorId).count() == 0L)
+        if (FavoriteVendorEntity.findByUserAndVendor(userId, vendorId).empty())
             FavoriteVendorEntity.add(userId, vendorId)
+    }
+
+    fun isFavoriteProduct(productId: Long, userId: Long): Boolean = transaction {
+        !FavoriteProductEntity.findByUserAndProduct(userId, productId).empty()
+    }
+
+    fun isFavoriteVendor(vendorId: Long, userId: Long): Boolean = transaction {
+        !FavoriteVendorEntity.findByUserAndVendor(userId, vendorId).empty()
     }
 }

@@ -19,7 +19,6 @@ data class Session(
 
 typealias SessionCart = List<CartProduct>
 
-// TODO: test this
 fun SessionCart.toJSON(): String = Gson().toJson(this)
 
 fun fromJSON(serialized: String): SessionCart {
