@@ -14,8 +14,8 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
 object Products : LongIdTable() {
-    val name = varchar("name", Constants.MAX_PRODUCT_NAME_LENGTH)
-    val description = varchar("description", Constants.MAX_PRODUCT_DESC_LENGTH)
+    val name = text("name")
+    val description = text("description")
     val date = timestamp("date").default(Instant.now())
     val lastUpdated = timestamp("last_updated").default(Instant.now())
     val price = double("price")
@@ -107,7 +107,8 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var category by ProductCategoryEntity referencedOn Products.category
     private val _images by ProductImageEntity referrersOn ProductImages.product
 
-    private val images get() = _images.orderBy(Pair(ProductImages.index, SortOrder.ASC)).limit(Constants.MAX_IMAGES_PER_PRODUCT)
+    private val images
+        get() = _images.orderBy(Pair(ProductImages.index, SortOrder.ASC)).limit(Constants.MAX_IMAGES_PER_PRODUCT)
 
     fun toProduct(): Product {
         val images = images.map { it.toProductImage() }

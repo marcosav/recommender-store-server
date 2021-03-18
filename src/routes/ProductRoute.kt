@@ -32,7 +32,7 @@ fun Route.product() {
             productValidator.validate(it)
 
             var product = it.toProduct(session.userId!!)
-            it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
+            //it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
             product = productService.add(product)
 
             call.respond(product)
@@ -72,7 +72,7 @@ fun Route.product() {
             productValidator.validate(it)
 
             var product = it.toProduct()
-            it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
+            //it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
             product = productService.update(product)
 
             call.respond(product)

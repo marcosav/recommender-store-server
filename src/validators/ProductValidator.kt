@@ -27,14 +27,14 @@ class ProductValidator(di: DI) : Validator<ProductForm>() {
 
         // TODO: improve checking check multipart
 
-        check("image", it.image.size > Constants.MAX_IMAGES_PER_PRODUCT, "amount.${Constants.MAX_IMAGES_PER_PRODUCT}")
+        //check("image", it.image.size > Constants.MAX_IMAGES_PER_PRODUCT, "amount.${Constants.MAX_IMAGES_PER_PRODUCT}")
 
-        for (i in 0..it.image.size)
+        /*for (i in 0..it.image.size)
             if (allowedImageExtension("image", it.imageExt[i])) {
                 val c = ImageHandler.calculateOriginalByteSize(it.image[i]) > Constants.MAX_IMAGE_BYTE_SIZE
                 check("image", c, "max_size")
                 if (c) break
-            }
+            }*/
 
         it.price = "%.2f".format(it.price).toDouble()
     }

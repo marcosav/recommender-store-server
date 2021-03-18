@@ -3,7 +3,6 @@ package com.gmail.marcosav2010.validators
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
 import com.gmail.marcosav2010.services.UserService
-import com.gmail.marcosav2010.utils.ImageHandler
 import org.kodein.di.DI
 import org.kodein.di.instance
 import java.util.regex.Pattern
@@ -48,22 +47,10 @@ class UserRegisterFormValidator(di: DI) : Validator<UserForm>() {
         maxLength("name", it.name, Constants.MAX_NAME_LENGTH)
         maxLength("surname", it.surname, Constants.MAX_SURNAME_LENGTH)
 
-        it.profileImage?.let { i ->
-            if (allowedImageExtension("profile_image", it.profileImageExt!!))
-                check(
-                    "profile_image",
-                    ImageHandler.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
-                    "max_size"
-                )
-        }
-
         format("email", !isValidEmail(it.email))
         existing("email", userService.findByEmail(it.email) != null)
-        existing("nickname", userService.findByEmail(it.nickname) != null)
+        existing("nickname", userService.findByExactNickname(it.nickname) != null)
     }
 
     private fun isValidEmail(email: String) = EMAIL_REGEX.matcher(email).find()
 }
-
-fun ValidationContext.allowedImageExtension(field: String, current: String): Boolean =
-    (current in Constants.ALLOWED_IMAGE_EXT).also { check(field, it, "invalid_img_format") }

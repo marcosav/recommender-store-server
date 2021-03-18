@@ -9,4 +9,5 @@ fun DI.MainBuilder.setupValidators() {
     bind<UserEditFormValidator>() with singleton { UserEditFormValidator() }
     bind<ProductValidator>() with singleton { ProductValidator(di) }
     bind<CartUpdateValidator>() with singleton { CartUpdateValidator() }
+    bind<UserImageProfileValidator>() with singleton { UserImageProfileValidator() }
 }

@@ -2,7 +2,6 @@ package com.gmail.marcosav2010.validators
 
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
-import com.gmail.marcosav2010.utils.ImageHandler
 
 class UserEditFormValidator : Validator<UserForm>() {
 
@@ -25,14 +24,5 @@ class UserEditFormValidator : Validator<UserForm>() {
 
         maxLength("name", it.name, Constants.MAX_NAME_LENGTH)
         maxLength("surname", it.surname, Constants.MAX_SURNAME_LENGTH)
-
-        it.profileImage?.let { i ->
-            if (allowedImageExtension("profile_image", it.profileImageExt!!))
-                check(
-                    "profile_image",
-                    ImageHandler.calculateOriginalByteSize(i) > Constants.MAX_IMAGE_BYTE_SIZE,
-                    "max_size"
-                )
-        }
     }
 }

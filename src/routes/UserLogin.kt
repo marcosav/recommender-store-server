@@ -8,6 +8,7 @@ import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.BCryptEncoder
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -23,6 +24,8 @@ fun Route.login() {
     val cartService by di().instance<CartService>()
 
     post<Login> {
+        session.userId?.let { return@post call.respond(HttpStatusCode.NoContent) }
+
         if (it.username.isEmpty() || it.password.isEmpty())
             throw UnauthorizedException()
 
@@ -31,7 +34,7 @@ fun Route.login() {
             if (!BCryptEncoder.verify(it.password, matched.password))
                 throw UnauthorizedException()
 
-            roleService.findForUser(matched.id!!, true) ?: throw UnauthorizedException()
+            roleService.findForUser(matched.id!!, true)
 
             val cart = session.cart.let { c -> cartService.mergeCarts(matched.id, c) }
 

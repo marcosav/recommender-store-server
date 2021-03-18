@@ -1,6 +1,5 @@
 package com.gmail.marcosav2010.db.dao
 
-import com.gmail.marcosav2010.Constants
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
@@ -11,7 +10,7 @@ import java.time.Instant
 object ProductReports : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
-    val reason = varchar("reason", Constants.MAX_PRODUCT_REPORT_DESC_LENGTH)
+    val reason = text("reason")
     val date = timestamp("date").default(Instant.now())
 
     init {

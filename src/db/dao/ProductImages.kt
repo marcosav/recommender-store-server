@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 
 object ProductImages : LongIdTable() {
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
-    val uri = varchar("uri", 250)
+    val uri = text("uri")
     val index = byte("index")
 
     init {

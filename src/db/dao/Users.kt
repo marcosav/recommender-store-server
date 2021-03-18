@@ -1,6 +1,5 @@
 package com.gmail.marcosav2010.db.dao
 
-import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.User
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
@@ -12,13 +11,13 @@ import org.jetbrains.exposed.sql.or
 import java.time.Instant
 
 object Users : LongIdTable() {
-    val name = varchar("name", Constants.MAX_NAME_LENGTH)
-    val surname = varchar("surname", Constants.MAX_SURNAME_LENGTH)
-    val email = varchar("email", Constants.MAX_EMAIL_LENGTH)
-    val password = varchar("password", 255)
-    val profileImgUri = varchar("profile_img_uri", 250).nullable()
-    val nickname = varchar("nickname", Constants.MAX_NICKNAME_LENGTH)
-    val description = varchar("description", Constants.MAX_DESCRIPTION_LENGTH)
+    val name = text("name")
+    val surname = text("surname")
+    val email = text("email")
+    val password = text("password")
+    val profileImgUri = text("profile_img_uri").nullable()
+    val nickname = text("nickname")
+    val description = text("description")
     val registerDate = timestamp("register_date").default(Instant.now())
     val deleted = bool("deleted").default(false)
 }
@@ -60,10 +59,9 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
 
         fun findByExactNickname(nickname: String) = find { Users.nickname eq nickname }.firstOrNull()
 
-        fun findByUsername(username: String) =
-            find {
-                ((Users.nickname eq username).or(Users.email eq username)).and(not(Users.deleted))
-            }.firstOrNull()
+        fun findByUsername(username: String) = find {
+            ((Users.nickname eq username).or(Users.email eq username)).and(not(Users.deleted))
+        }.firstOrNull()
 
         fun findByNickname(nickname: String) = find { (Users.nickname like "%$nickname%") and not(Users.deleted) }
     }

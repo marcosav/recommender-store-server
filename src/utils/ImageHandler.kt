@@ -1,34 +1,68 @@
 package com.gmail.marcosav2010.utils
 
 import com.gmail.marcosav2010.Constants
+import io.ktor.http.content.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.File
-import java.nio.file.Files
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 
 
 object ImageHandler {
-
-    private const val B64_BYTES_FACTOR = 1.334
 
     val STATIC_FILES_ROUTE = System.getenv(Constants.PUBLIC_PATH_ENV) ?: Constants.DEFAULT_PUBLIC_PATH
     val IMG_FOLDER_ROUTE = System.getenv(Constants.IMG_PATH_ENV) ?: Constants.DEFAULT_IMG_PATH
 
     private val IMG_PATH = "${STATIC_FILES_ROUTE}/${IMG_FOLDER_ROUTE}"
 
-    fun calculateOriginalByteSize(base64: String) = base64.length.toDouble() / B64_BYTES_FACTOR
+    suspend fun process(part: PartData.FileItem): String {
+        val ext = File(part.originalFileName!!).extension
 
-    fun process(encoded: String, ext: String): String {
         val name = UUID.randomUUID()
-        val f = File("$IMG_PATH/$name.$ext")
-        if (!f.parentFile.exists())
-            f.parentFile.mkdir()
+        val file = File("$IMG_PATH/$name.$ext")
+        if (!file.parentFile.exists())
+            file.parentFile.mkdirs()
 
-        val decoded = Base64.getDecoder().decode(encoded)
-        Files.write(f.toPath(), decoded)
+        part.streamProvider()
+            .use { input -> file.outputStream().buffered().use { output -> input.copyToSuspend(output) } }
 
-        return f.path
+        return file.path
+    }
+
+    private suspend fun InputStream.copyToSuspend(
+        out: OutputStream,
+        bufferSize: Int = DEFAULT_BUFFER_SIZE,
+        yieldSize: Int = 4 * 1024 * 1024,
+        dispatcher: CoroutineDispatcher = Dispatchers.IO
+    ): Long {
+        return withContext(dispatcher) {
+            val buffer = ByteArray(bufferSize)
+            var bytesCopied = 0L
+            var bytesAfterYield = 0L
+
+            while (true) {
+                if (bytesCopied > Constants.MAX_IMAGE_BYTE_SIZE)
+                    throw OversizeImageException()
+
+                val bytes = read(buffer).takeIf { it >= 0 } ?: break
+                out.write(buffer, 0, bytes)
+
+                if (bytesAfterYield >= yieldSize) {
+                    yield()
+                    bytesAfterYield %= yieldSize
+                }
+
+                bytesCopied += bytes
+                bytesAfterYield += bytes
+            }
+            return@withContext bytesCopied
+        }
     }
 
     fun resizeImage(originalImage: BufferedImage, targetWidth: Int, targetHeight: Int): BufferedImage {
@@ -38,3 +72,5 @@ object ImageHandler {
         return outputImage
     }
 }
+
+class OversizeImageException : Exception()

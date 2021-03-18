@@ -23,7 +23,8 @@ object Constants {
     const val MAX_SURNAME_LENGTH = 63
     const val MAX_DESCRIPTION_LENGTH = 800
 
-    const val MAX_IMAGE_BYTE_SIZE = 16 * 1024 * 1024
+    const val MAX_IMAGE_MB_SIZE = 14
+    const val MAX_IMAGE_BYTE_SIZE = MAX_IMAGE_MB_SIZE * 1024 * 1024
 
     const val MAX_ADDRESS_RECIPIENT_LENGTH = 100
     const val MAX_ADDRESS_CODE_LENGTH = 10
