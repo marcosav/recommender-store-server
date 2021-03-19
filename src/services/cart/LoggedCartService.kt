@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.services.cart
 
 import com.gmail.marcosav2010.db.dao.CartProductEntity
+import com.gmail.marcosav2010.model.CartProductPreview
 import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.model.SessionCart
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,7 +30,7 @@ class LoggedCartService : ICartService {
     fun mergeCarts(userId: Long, oldCart: SessionCart): SessionCart = transaction {
         val userCart = findByUser(userId)
         if (userCart.isEmpty()) {
-            oldCart.onEach { it.product.id.let { id -> CartProductEntity.add(userId, id, it.amount) } }
+            oldCart.onEach { it.id.let { id -> CartProductEntity.add(userId, id, it.amount) } }
         } else
             userCart
     }
@@ -43,5 +44,9 @@ class LoggedCartService : ICartService {
     override fun clear(session: Session): SessionCart = transaction {
         CartProductEntity.clear(session.userId!!)
         emptyList()
+    }
+
+    override fun getCurrentCart(session: Session): List<CartProductPreview> = transaction {
+        CartProductEntity.findByUser(session.userId!!).map { it.toPreview() }
     }
 }

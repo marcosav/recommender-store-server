@@ -2,6 +2,7 @@ package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.model.User
 import com.gmail.marcosav2010.services.UserService
+import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.utils.OversizeImageException
 import com.gmail.marcosav2010.validators.UserEditFormValidator
@@ -70,6 +71,8 @@ fun Route.signup() {
     }
 
     post("/signup") {
+        session.userId?.let { return@post call.respond(HttpStatusCode.NoContent) }
+
         handleMultipart(userRegisterFormValidator) {
             userService.add(it.first.toUser(it.second))
         }

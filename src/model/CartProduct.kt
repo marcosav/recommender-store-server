@@ -1,9 +1,11 @@
 package com.gmail.marcosav2010.model
 
 data class CartProduct(
-    //val id: Long?,
-    val product: PreviewProduct,
-    //val userId: Long,
+    val id: Long,
     var amount: Long,
-    //val lastUpdated: Instant
+)
+
+data class CartProductPreview(
+    val product: PreviewProduct,
+    var amount: Long,
 )

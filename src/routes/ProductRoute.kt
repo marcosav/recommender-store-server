@@ -8,7 +8,6 @@ import com.gmail.marcosav2010.services.FavoriteService
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
-import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.validators.ProductValidator
 import io.ktor.application.*
 import io.ktor.http.*

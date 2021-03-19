@@ -1,10 +1,7 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.Constants
-import com.gmail.marcosav2010.services.FavoriteService
-import com.gmail.marcosav2010.services.ProductService
-import com.gmail.marcosav2010.services.UserService
-import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.services.*
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -24,6 +21,8 @@ fun Route.favorites() {
             val productService by di().instance<ProductService>()
 
             get<FavoriteList> {
+                assertIdentified()
+
                 val offset = it.page * Constants.PRODUCTS_PER_PAGE
                 val products = favoriteService.findProductsByUser(
                     session.userId!!,
@@ -35,10 +34,12 @@ fun Route.favorites() {
             }
 
             post<AddFavorite> {
+                assertIdentified()
+
                 val userId = session.userId!!
                 val product = productService.findById(it.id)
                 if (product?.userId == userId)
-                    throw BadRequestException()
+                    return@post call.respond(HttpStatusCode.NoContent)
 
                 if (product?.hidden != false)
                     throw NotFoundException()
@@ -48,6 +49,8 @@ fun Route.favorites() {
             }
 
             delete<DeleteFavorite> {
+                assertIdentified()
+
                 favoriteService.removeProduct(it.id, session.userId!!)
                 call.respond(HttpStatusCode.OK)
             }
@@ -57,6 +60,8 @@ fun Route.favorites() {
             val userService by di().instance<UserService>()
 
             get<FavoriteList> {
+                assertIdentified()
+
                 val offset = it.page * Constants.PRODUCTS_PER_PAGE
                 val vendors = favoriteService.findVendorsByUser(
                     session.userId!!,
@@ -68,9 +73,11 @@ fun Route.favorites() {
             }
 
             post<AddFavorite> {
+                assertIdentified()
+
                 val userId = session.userId!!
                 if (it.id == userId)
-                    throw BadRequestException()
+                    return@post call.respond(HttpStatusCode.NoContent)
 
                 val vendor = userService.findById(it.id) ?: throw NotFoundException()
 
@@ -79,6 +86,8 @@ fun Route.favorites() {
             }
 
             delete<DeleteFavorite> {
+                assertIdentified()
+
                 favoriteService.removeVendor(it.id, session.userId!!)
                 call.respond(HttpStatusCode.OK)
             }

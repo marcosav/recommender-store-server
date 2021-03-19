@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.services.cart
 
+import com.gmail.marcosav2010.model.CartProductPreview
 import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.model.SessionCart
 import com.gmail.marcosav2010.services.AuthenticationService
@@ -14,6 +15,8 @@ class CartService(di: DI) {
     private val sessionCS = SessionCartService(di)
 
     fun findByUser(userId: Long): SessionCart = loggedCS.findByUser(userId)
+
+    fun getCurrentCart(session: Session): List<CartProductPreview> = service(session).getCurrentCart(session)
 
     fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean) =
         service(session).updateProductAmount(session, productId, amount, add).updatedToken(session)

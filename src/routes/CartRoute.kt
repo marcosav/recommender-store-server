@@ -1,7 +1,6 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.services.ProductService
-import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.CartUpdateValidator
@@ -23,9 +22,7 @@ fun Route.cart() {
         val cartUpdateValidator by di().instance<CartUpdateValidator>()
 
         get {
-            assertIdentified()
-
-            val cart = cartService.findByUser(session.userId!!)
+            val cart = cartService.getCurrentCart(session)
             call.respond(cart)
         }
 

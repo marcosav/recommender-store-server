@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.db.dao
 
 import com.gmail.marcosav2010.model.CartProduct
+import com.gmail.marcosav2010.model.CartProductPreview
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
@@ -58,6 +59,7 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
     var amount by CartProducts.amount
     var lastUpdated by CartProducts.lastUpdated
 
-    fun toCartProduct() =
-        CartProduct(/*id.value, */product.toPreviewProduct()/*, user.id.value*/, amount/*, lastUpdated*/)
+    fun toCartProduct() = CartProduct(product.id.value, amount)
+
+    fun toPreview() = CartProductPreview(product.toPreviewProduct(), amount)
 }
