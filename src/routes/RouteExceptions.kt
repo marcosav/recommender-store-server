@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.validators.ValidationException
+import db.PagingException
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -29,6 +30,10 @@ fun StatusPages.Configuration.setupExceptionHandler() {
 
     exception<BadRequestException> {
         call.respondError(HttpStatusCode.BadRequest, it.msg)
+    }
+
+    exception<PagingException> {
+        call.respondError(HttpStatusCode.BadRequest, null)
     }
 
     exception<ValidationException> {

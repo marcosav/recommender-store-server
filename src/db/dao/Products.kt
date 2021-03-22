@@ -41,6 +41,11 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 category = ProductCategoryEntity[product.category.id]
                 hidden = product.hidden
 
+                product.date?.let {
+                    date = it
+                    lastUpdated = it
+                }
+
                 user = UserEntity[product.userId!!]
             }.also { p -> product.images.let { ProductImageEntity.add(p.id.value, it) } }
 

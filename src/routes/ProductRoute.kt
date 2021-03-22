@@ -26,6 +26,10 @@ fun Route.product() {
         val favoriteService by di().instance<FavoriteService>()
         val productValidator by di().instance<ProductValidator>()
 
+        get("/categories") {
+            call.respond(productService.getCategories())
+        }
+
         post<ProductForm> {
             assertIdentified()
             productValidator.validate(it)

@@ -48,7 +48,7 @@ object Constants {
     const val CART_MAX_AMOUNT = 40
 
     /*  */
-    const val PRODUCTS_PER_PAGE = 20
+    const val PRODUCTS_PER_PAGE = 25
 
     /* */
     const val SESSION_DURATION = 7 * 24 * 3600L

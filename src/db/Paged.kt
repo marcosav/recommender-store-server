@@ -1,5 +1,6 @@
 package db
 
+import com.gmail.marcosav2010.Constants
 import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SortOrder
@@ -11,8 +12,10 @@ fun <T, R> SizedIterable<T>.paged(
     size: Int,
     offset: Int,
     vararg order: Pair<Expression<*>, SortOrder>
-): Paged<R> =
-    transaction {
+): Paged<R> {
+    if (offset < 0) throw PagingException()
+
+    return transaction {
         val total = count()
 
         val products = orderBy(*order)
@@ -21,5 +24,8 @@ fun <T, R> SizedIterable<T>.paged(
 
         Paged(products, total)
     }
+}
 
-class Paged<T>(val items: List<T>, val total: Long)
+class Paged<T>(val items: List<T>, val total: Long, val pageSize: Int = Constants.PRODUCTS_PER_PAGE)
+
+class PagingException : Exception()

@@ -8,6 +8,8 @@ import com.gmail.marcosav2010.model.*
 import com.gmail.marcosav2010.utils.BCryptEncoder
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
+import java.time.Instant
+import java.util.*
 import kotlin.random.Random
 
 fun SchemaUtils.populate() {
@@ -20,7 +22,7 @@ fun SchemaUtils.populate() {
         "games",
         "home",
         "others"
-    ).forEachIndexed { i, c -> ProductCategoryEntity.new(i.toLong()) { this.name = c } }
+    ).forEachIndexed { i, c -> ProductCategoryEntity.new(i.toLong() + 1) { this.name = c } }
 
     val hPassword = BCryptEncoder.encode("1")
 
@@ -44,6 +46,7 @@ fun SchemaUtils.populate() {
                 ProductCategory(Random.nextLong(1, 8)),
                 false,
                 "Nice product very nice bery nice, i love me gusta mucho $it",
+                date = randomDate(),
                 userId = Random.nextLong(1, 100)
             )
         )
@@ -63,6 +66,7 @@ fun SchemaUtils.populate() {
                 false,
                 "hola este es mi primer segunto tercer y n-simo producto",
                 images,
+                date = randomDate(),
                 userId = user.id.value
             )
         )
@@ -75,3 +79,11 @@ fun SchemaUtils.populate() {
 }
 
 private fun genPrice() = "%.2f".format(Random.nextDouble(5.0, 1000.0)).toDouble()
+
+const val PRODUCTS_SINCE = 6 * 30 * 24 * 3600 * 1000L
+
+private fun randomDate(): Instant {
+    val date = Date()
+    date.time = date.time - Random.nextLong(PRODUCTS_SINCE)
+    return date.toInstant()
+}
