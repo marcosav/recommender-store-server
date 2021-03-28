@@ -3,6 +3,7 @@ package com.gmail.marcosav2010.services
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.db.dao.ProductCategoryEntity
 import com.gmail.marcosav2010.db.dao.ProductEntity
+import com.gmail.marcosav2010.db.dao.ProductImageEntity
 import com.gmail.marcosav2010.db.dao.Products
 import com.gmail.marcosav2010.model.PreviewProduct
 import com.gmail.marcosav2010.model.Product
@@ -55,9 +56,13 @@ class ProductService {
 
     fun add(product: Product): Product = transaction {
         ProductEntity.add(product).toProduct()
+            .also { ProductImageEntity.add(it.id!!, product.images) }
     }
 
     fun update(product: Product): Product = transaction {
+        ProductImageEntity.remove(product.id!!, product.images.map { p -> p.i })
+        ProductImageEntity.add(product.id, product.images)
+
         ProductEntity.update(product).toProduct()
     }
 

@@ -52,9 +52,6 @@ fun SchemaUtils.populate() {
         )
     }
 
-    val imageUris = listOf("a", "b")
-    val images = imageUris.mapIndexed { i, it -> ProductImage(i.toByte(), it) }
-
     (1..15L).forEach {
         ProductEntity.add(
             Product(
@@ -87,3 +84,23 @@ private fun randomDate(): Instant {
     date.time = date.time - Random.nextLong(PRODUCTS_SINCE)
     return date.toInstant()
 }
+
+private val imageUris1 = listOf("public/img/a.jpg", "public/img/b.jpg", "public/img/c.jpg", "public/img/d.jpg")
+private val imageUris2 = listOf("public/img/c.jpg", "public/img/b.jpg")
+private val imageUris3 = listOf("public/img/f.jpg")
+private val imageUris4 = listOf(
+    "public/img/b.jpg",
+    "public/img/a.jpg",
+    "public/img/c.jpg",
+    "public/img/d.jpg",
+    "public/img/e.jpg",
+    "public/img/f.jpg",
+    "public/img/a.jpg",
+    "public/img/b.jpg"
+)
+
+private val pickableImgSets = listOf(imageUris1, imageUris2, imageUris3, imageUris4)
+
+private val images
+    get() =
+        pickableImgSets[Random.nextInt(pickableImgSets.size)].mapIndexed { i, it -> ProductImage(i.toByte(), it) }

@@ -37,6 +37,7 @@ object Constants {
     const val MIN_PRODUCT_NAME_LENGTH = 6
     const val MAX_PRODUCT_NAME_LENGTH = 50
     const val MAX_PRODUCT_DESC_LENGTH = 1000
+    const val MIN_PRODUCT_PRICE = 0.01
     const val MAX_PRODUCT_PRICE = 999999.0
     const val MAX_PRODUCT_STOCK = 99999
     const val MAX_IMAGES_PER_PRODUCT = 8
@@ -54,5 +55,6 @@ object Constants {
     const val SESSION_DURATION = 7 * 24 * 3600L
     const val USER_ID_CLAIM = "uid"
     const val USERNAME_CLAIM = "username"
+    const val ROLE_CLAIM = "r"
     const val CART_CLAIM = "cart"
 }

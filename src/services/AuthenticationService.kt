@@ -24,11 +24,18 @@ class AuthenticationService {
     val jwtVerifier: JWTVerifier =
         (JWT.require(jwtAlgorithm) as JWTVerifier.BaseVerification).build { Date(clock.millis()) }
 
-    fun token(subject: String, cart: SessionCart, userId: Long? = null, username: String? = null): String =
+    fun token(
+        subject: String,
+        cart: SessionCart,
+        userId: Long? = null,
+        username: String? = null,
+        role: Role? = null
+    ): String =
         JWT.create()
             .withSubject(subject)
             .apply { userId?.let { withClaim(Constants.USER_ID_CLAIM, it) } }
             .apply { username?.let { withClaim(Constants.USERNAME_CLAIM, it) } }
+            .apply { if (role == Role.ADMIN) withClaim(Constants.ROLE_CLAIM, true) }
             .withClaim(Constants.CART_CLAIM, cart.toJSON())
             .withExpiresAt(Date.from(clock.instant().plusSeconds(Constants.SESSION_DURATION)))
             .sign(jwtAlgorithm)

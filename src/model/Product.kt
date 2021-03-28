@@ -17,6 +17,7 @@ data class Product(
     val rating: Double? = null,
     //val deleted: Boolean? = null,
     var userId: Long? = null,
+    var vendorNick: String? = null,
     var fav: Boolean? = null
 )
 
@@ -24,6 +25,7 @@ data class PreviewProduct(
     val id: Long,
     val name: String,
     val price: Double,
+    val stock: Int,
     val mainImage: String?,
     val lastUpdated: Instant? = null,
     val visits: Int? = null,

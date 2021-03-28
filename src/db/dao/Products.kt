@@ -47,7 +47,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 }
 
                 user = UserEntity[product.userId!!]
-            }.also { p -> product.images.let { ProductImageEntity.add(p.id.value, it) } }
+            }
 
         fun update(product: Product) =
             ProductEntity[product.id!!].apply {
@@ -59,11 +59,6 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 hidden = product.hidden
 
                 lastUpdated = Instant.now()
-            }.also { p ->
-                product.images.let {
-                    ProductImageEntity.remove(p.id.value)
-                    ProductImageEntity.add(p.id.value, it)
-                }
             }
 
         fun delete(id: Long) {
@@ -132,7 +127,8 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             visits,
             rating,
             //deleted,
-            user.id.value
+            user.id.value,
+            user.nickname
         )
     }
 
@@ -141,6 +137,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             id.value,
             name,
             price,
+            stock,
             images.firstOrNull()?.uri,
             lastUpdated,
             visits,

@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 
@@ -29,6 +30,9 @@ class ProductImageEntity(id: EntityID<Long>) : LongEntity(id) {
         }
 
         fun remove(productId: Long) = ProductImages.deleteWhere { ProductImages.product eq productId }
+
+        fun remove(productId: Long, indices: Iterable<Byte>) =
+            ProductImages.deleteWhere { (ProductImages.product eq productId).and(ProductImages.index inList indices) }
     }
 
     var product by ProductEntity referencedOn ProductImages.product

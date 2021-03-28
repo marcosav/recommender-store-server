@@ -8,12 +8,19 @@ import com.gmail.marcosav2010.services.FavoriteService
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.utils.ImageHandler
+import com.gmail.marcosav2010.utils.OversizeImageException
+import com.gmail.marcosav2010.validators.ImageValidator
 import com.gmail.marcosav2010.validators.ProductValidator
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.locations.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.pipeline.*
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 
@@ -25,20 +32,66 @@ fun Route.product() {
         val productService by di().instance<ProductService>()
         val favoriteService by di().instance<FavoriteService>()
         val productValidator by di().instance<ProductValidator>()
+        val imageValidator by di().instance<ImageValidator>()
+
+        suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
+            success: (Pair<ProductForm, Array<String?>>) -> Unit,
+            formCheck: (ProductForm) -> Unit = {}
+        ) {
+            val multipart = call.receiveMultipart()
+
+            var form: ProductForm? = null
+            val images = arrayOfNulls<String>(Constants.MAX_IMAGES_PER_PRODUCT)
+
+            multipart.forEachPart { part ->
+                when (part) {
+                    is PartData.FormItem -> {
+                        if (part.name != "form") return@forEachPart
+
+                        form = parseForm(part.value)
+
+                        formCheck(form!!)
+
+                        productValidator.validate(form!!)
+                    }
+                    is PartData.FileItem -> {
+                        if (part.name?.startsWith("file") != true) return@forEachPart
+
+                        val index = part.name?.replace("file", "")?.toIntOrNull()
+                            ?: throw BadRequestException()
+
+                        if (index < 0 || index >= Constants.MAX_IMAGES_PER_PRODUCT)
+                            throw BadRequestException()
+
+                        part.originalFileName?.let { filename ->
+                            imageValidator.validate(filename)
+                            images[index] = try {
+                                ImageHandler.process(part)
+                            } catch (ex: OversizeImageException) {
+                                imageValidator.onOversize()
+                            }
+                        }
+                    }
+                }
+
+                part.dispose()
+            }
+
+            success(Pair(form!!, images))
+
+            call.respond(HttpStatusCode.OK)
+        }
 
         get("/categories") {
             call.respond(productService.getCategories())
         }
 
-        post<ProductForm> {
+        post {
             assertIdentified()
-            productValidator.validate(it)
 
-            var product = it.toProduct(session.userId!!)
-            //it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
-            product = productService.add(product)
-
-            call.respond(product)
+            handleMultipart({ e ->
+                productService.add(e.first.toProduct(e.second, session.userId!!))
+            }) {}
         }
 
         get<ProductSearch> {
@@ -64,21 +117,17 @@ fun Route.product() {
             call.respond(products)
         }
 
-        put<ProductForm> {
+        put {
             assertIdentified()
 
-            val userId = session.userId!!
-            val admin = session.isAdmin
-            if (!productService.isSoldBy(it.id!!, userId) && !admin)
-                throw ForbiddenException()
-
-            productValidator.validate(it)
-
-            var product = it.toProduct()
-            //it.image.forEachIndexed { i, im -> it.images[i] = ImageHandler.process(im, it.imageExt[i]) }
-            product = productService.update(product)
-
-            call.respond(product)
+            handleMultipart({
+                productService.update(it.first.toProduct(it.second))
+            }) {
+                val userId = session.userId!!
+                val admin = session.isAdmin
+                if (!productService.isSoldBy(it.id!!, userId) && !admin)
+                    throw ForbiddenException()
+            }
         }
 
         delete<ProductPath.Delete> {
@@ -110,29 +159,28 @@ fun Route.product() {
     }
 }
 
+private fun parseForm(str: String): ProductForm = Gson().fromJson(str, ProductForm::class.java)
+
 data class ProductForm(
     val id: Long? = null,
     val name: String,
     val description: String,
-    var price: Double,
-    val stock: Int,
+    val price: String,
+    val stock: String,
     val category: Long,
     val hidden: Boolean,
-    val image: List<String>,
-    val imageExt: List<String>
 ) {
-    val images = mutableListOf<String>()
 
-    fun toProduct(userId: Long? = null) =
+    fun toProduct(images: Array<String?>, userId: Long? = null) =
         Product(
             id,
             name,
-            price,
-            stock,
+            "%.2f".format(price.toDouble()).toDouble(),
+            stock.toInt(),
             ProductCategory(category),
             hidden,
             description,
-            images.mapIndexed { i, s -> ProductImage(i.toByte(), s) },
+            images.mapIndexed { i, s -> s?.let { ProductImage(i.toByte(), s) } }.filterNotNull(),
             userId = userId
         )
 }

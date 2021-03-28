@@ -19,7 +19,7 @@ object ImageHandler {
     val STATIC_FILES_ROUTE = System.getenv(Constants.PUBLIC_PATH_ENV) ?: Constants.DEFAULT_PUBLIC_PATH
     val IMG_FOLDER_ROUTE = System.getenv(Constants.IMG_PATH_ENV) ?: Constants.DEFAULT_IMG_PATH
 
-    private val IMG_PATH = "${STATIC_FILES_ROUTE}/${IMG_FOLDER_ROUTE}"
+    val IMG_PATH = "${STATIC_FILES_ROUTE}/${IMG_FOLDER_ROUTE}"
 
     suspend fun process(part: PartData.FileItem): String {
         val ext = File(part.originalFileName!!).extension

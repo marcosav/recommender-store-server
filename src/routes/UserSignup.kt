@@ -5,8 +5,8 @@ import com.gmail.marcosav2010.services.UserService
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.utils.OversizeImageException
+import com.gmail.marcosav2010.validators.ImageValidator
 import com.gmail.marcosav2010.validators.UserEditFormValidator
-import com.gmail.marcosav2010.validators.UserImageProfileValidator
 import com.gmail.marcosav2010.validators.UserRegisterFormValidator
 import com.gmail.marcosav2010.validators.Validator
 import com.google.gson.Gson
@@ -28,7 +28,7 @@ fun Route.signup() {
 
     val userRegisterFormValidator by di().instance<UserRegisterFormValidator>()
     val userEditFormValidator by di().instance<UserEditFormValidator>()
-    val userImageProfileValidator by di().instance<UserImageProfileValidator>()
+    val imageValidator by di().instance<ImageValidator>()
 
     suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
         validator: Validator<UserForm>,
@@ -52,11 +52,11 @@ fun Route.signup() {
                     if (part.name != "file") return@forEachPart
 
                     part.originalFileName?.let {
-                        userImageProfileValidator.validate(it)
+                        imageValidator.validate(it)
                         image = try {
                             ImageHandler.process(part)
                         } catch (ex: OversizeImageException) {
-                            userImageProfileValidator.onOversize()
+                            imageValidator.onOversize()
                         }
                     }
                 }

@@ -13,16 +13,16 @@ const val API_ROUTE = "/api/v${Constants.API_VERSION}"
 @KtorExperimentalLocationsAPI
 fun Application.setupRoutes() {
     routing {
-        authenticate {
-            static(ImageHandler.STATIC_FILES_ROUTE) {
-                files(ImageHandler.IMG_FOLDER_ROUTE)
-            }
-        }
-
         route(API_ROUTE) {
             auth()
 
             authenticate {
+                static(ImageHandler.STATIC_FILES_ROUTE) {
+                    static(ImageHandler.IMG_FOLDER_ROUTE) {
+                        files(ImageHandler.IMG_PATH)
+                    }
+                }
+
                 login()
                 signup()
                 users()

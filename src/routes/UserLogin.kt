@@ -34,13 +34,13 @@ fun Route.login() {
             if (!BCryptEncoder.verify(it.password, matched.password))
                 throw UnauthorizedException()
 
-            roleService.findForUser(matched.id!!, true)
+            val role = roleService.findForUser(matched.id!!, true)
 
             val cart = session.cart.let { c -> cartService.mergeCarts(matched.id, c) }
 
             call.respond(
                 LoginResponse(
-                    authenticationService.token(session.sessionId, cart, matched.id, matched.nickname),
+                    authenticationService.token(session.sessionId, cart, matched.id, matched.nickname, role),
                     matched.toPublicUser()
                 )
             )
