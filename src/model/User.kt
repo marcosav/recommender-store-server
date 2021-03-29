@@ -15,6 +15,10 @@ data class User(
     val deleted: Boolean? = null
 ) {
     fun toPublicUser() = PublicUser(id!!, nickname, description, profileImgUri, registerDate!!)
+
+    fun removeConfidential() {
+        password = ""
+    }
 }
 
 data class PublicUser(
@@ -22,5 +26,6 @@ data class PublicUser(
     val nickname: String,
     val description: String,
     val profileImgUri: String?,
-    val registerDate: Instant
+    val registerDate: Instant,
+    var fav: Boolean? = null
 )

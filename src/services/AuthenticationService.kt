@@ -24,6 +24,14 @@ class AuthenticationService {
     val jwtVerifier: JWTVerifier =
         (JWT.require(jwtAlgorithm) as JWTVerifier.BaseVerification).build { Date(clock.millis()) }
 
+    fun token(session: Session) = token(
+        session.sessionId,
+        session.cart,
+        session.userId,
+        session.username,
+        session.role
+    )
+
     fun token(
         subject: String,
         cart: SessionCart,

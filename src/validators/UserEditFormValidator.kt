@@ -2,8 +2,13 @@ package com.gmail.marcosav2010.validators
 
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.routes.UserForm
+import com.gmail.marcosav2010.services.UserService
+import org.kodein.di.DI
+import org.kodein.di.instance
 
-class UserEditFormValidator : Validator<UserForm>() {
+class UserEditFormValidator(di: DI) : Validator<UserForm>() {
+
+    private val userService by di.instance<UserService>()
 
     override fun validation(): ValidationContext.(UserForm) -> Unit = {
         mandatory("name", it.name)
@@ -13,6 +18,8 @@ class UserEditFormValidator : Validator<UserForm>() {
         if (it.password.isNotBlank()) {
             mandatory("repeatedPassword", it.repeatedPassword)
             notMatching("repeatedPassword", it.password, it.repeatedPassword)
+
+            minLength("password", it.password, Constants.MIN_PASSWORD_LENGTH)
         }
 
         minLength("nickname", it.nickname, Constants.MIN_NICKNAME_LENGTH)
@@ -20,9 +27,10 @@ class UserEditFormValidator : Validator<UserForm>() {
 
         maxLength("description", it.description, Constants.MAX_DESCRIPTION_LENGTH)
 
-        minLength("password", it.password, Constants.MIN_PASSWORD_LENGTH)
-
         maxLength("name", it.name, Constants.MAX_NAME_LENGTH)
         maxLength("surname", it.surname, Constants.MAX_SURNAME_LENGTH)
+
+        if (it.nickChange)
+            existing("nickname", userService.findByExactNickname(it.nickname) != null)
     }
 }

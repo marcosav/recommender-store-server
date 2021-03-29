@@ -1,7 +1,9 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.model.User
+import com.gmail.marcosav2010.services.AuthenticationService
 import com.gmail.marcosav2010.services.UserService
+import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.utils.OversizeImageException
@@ -25,6 +27,7 @@ import org.kodein.di.ktor.di
 fun Route.signup() {
 
     val userService by di().instance<UserService>()
+    val authenticationService by di().instance<AuthenticationService>()
 
     val userRegisterFormValidator by di().instance<UserRegisterFormValidator>()
     val userEditFormValidator by di().instance<UserEditFormValidator>()
@@ -32,7 +35,8 @@ fun Route.signup() {
 
     suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
         validator: Validator<UserForm>,
-        success: (Pair<UserForm, String?>) -> Unit
+        edit: Boolean,
+        success: (Pair<UserForm, String?>) -> User
     ) {
         val multipart = call.receiveMultipart()
 
@@ -45,6 +49,7 @@ fun Route.signup() {
                     if (part.name != "form") return@forEachPart
 
                     form = parseForm(part.value)
+                    form!!.nickChange = edit && session.username != form!!.nickname
 
                     validator.validate(form!!)
                 }
@@ -65,21 +70,27 @@ fun Route.signup() {
             part.dispose()
         }
 
-        success(Pair(form!!, image))
+        val u = success(Pair(form!!, image))
 
-        call.respond(HttpStatusCode.OK)
+        session.username = u.nickname
+
+        call.respond(
+            if (session.userId == null) HttpStatusCode.OK else mapOf("token" to authenticationService.token(session))
+        )
     }
 
     post("/signup") {
         session.userId?.let { return@post call.respond(HttpStatusCode.NoContent) }
 
-        handleMultipart(userRegisterFormValidator) {
+        handleMultipart(userRegisterFormValidator, false) {
             userService.add(it.first.toUser(it.second))
         }
     }
 
     put("/profile/edit") {
-        handleMultipart(userEditFormValidator) {
+        assertIdentified()
+
+        handleMultipart(userEditFormValidator, true) {
             userService.update(it.first.toUser(it.second))
         }
     }
@@ -98,6 +109,8 @@ data class UserForm(
     val nickname: String,
     val description: String
 ) {
+    var nickChange = false
+
     fun toUser(profileImage: String?) =
         User(
             id,

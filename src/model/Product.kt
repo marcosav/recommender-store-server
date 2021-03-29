@@ -15,7 +15,6 @@ data class Product(
     val date: Instant? = null,
     val visits: Int? = null,
     val rating: Double? = null,
-    //val deleted: Boolean? = null,
     var userId: Long? = null,
     var vendorNick: String? = null,
     var fav: Boolean? = null

@@ -23,7 +23,7 @@ class FavoriteVendorEntity(id: EntityID<Long>) : LongEntity(id) {
     companion object : BaseEntityClass<FavoriteVendorEntity>(FavoriteVendors) {
 
         fun findByUser(userId: Long) =
-            Users.fullJoin(FavoriteVendors)
+            Users.join(FavoriteVendors, JoinType.FULL, Users.id, FavoriteVendors.vendor)
                 .select {
                     not(Users.deleted).and(FavoriteVendors.user eq userId)
                 }.orderBy(Pair(Users.name, SortOrder.DESC))

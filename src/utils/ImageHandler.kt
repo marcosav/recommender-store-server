@@ -6,8 +6,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.awt.Image
-import java.awt.image.BufferedImage
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -61,16 +59,31 @@ object ImageHandler {
                 bytesCopied += bytes
                 bytesAfterYield += bytes
             }
+
             return@withContext bytesCopied
         }
     }
 
-    fun resizeImage(originalImage: BufferedImage, targetWidth: Int, targetHeight: Int): BufferedImage {
-        val resultingImage: Image = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT)
+    /*private fun handleImage(input: InputStream, out: OutputStream) {
+        val originalImage = ImageIO.read(input)
+        var rw = originalImage.width
+        var rh = originalImage.height
+        val s = max(rw, rh)
+        if (s > Constants.MAX_IMAGE_SIZE) {
+            val prop = Constants.MAX_IMAGE_SIZE.toDouble() / s.toDouble()
+            rh = (rh * prop).toInt()
+            rw = (rw * prop).toInt()
+
+            ImageIO.write(resizeImage(originalImage, rw, rh), "jpg", out)
+        }
+    }
+
+    private fun resizeImage(originalImage: BufferedImage, targetWidth: Int, targetHeight: Int): BufferedImage {
+        val resultingImage: Image = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_FAST)
         val outputImage = BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB)
         outputImage.graphics.drawImage(resultingImage, 0, 0, null)
         return outputImage
-    }
+    }*/
 }
 
 class OversizeImageException : Exception()

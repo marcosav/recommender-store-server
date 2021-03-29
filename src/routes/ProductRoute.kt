@@ -200,4 +200,4 @@ data class ProductSearch(val query: String, val page: Int = 0, val category: Lon
 
 @KtorExperimentalLocationsAPI
 @Location("/vendor/{vendorId}")
-data class VendorProducts(val vendorId: Long, val shown: Boolean = true, val page: Int)
+data class VendorProducts(val vendorId: Long, val shown: Boolean = true, val page: Int = 0)
