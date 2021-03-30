@@ -1,11 +1,9 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.Constants
-import com.gmail.marcosav2010.services.FavoriteService
-import com.gmail.marcosav2010.services.UserService
-import com.gmail.marcosav2010.services.assertIdentified
-import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.services.*
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -36,15 +34,26 @@ fun Route.users() {
                 val publicUser = user.toPublicUser()
                 session.userId?.let { uid -> publicUser.fav = favoriteService.isFavoriteVendor(publicUser.id, uid) }
                 call.respond(publicUser)
+
             } else {
                 assertIdentified()
 
-                if (session.userId != it.id && !session.isAdmin)
+                if (session.userId != user.id && !session.isAdmin)
                     throw ForbiddenException()
 
                 user.removeConfidential()
                 call.respond(user)
             }
+        }
+
+        delete<DeleteUser> {
+            assertAdmin()
+
+            val user = userService.findById(it.id) ?: throw NotFoundException()
+
+            userService.delete(user.id!!)
+
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
@@ -56,3 +65,7 @@ data class UserSearch(val query: String, val page: Int = 0, val category: Long? 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
 data class UserProfile(val id: Long, val detailed: Boolean = false)
+
+@KtorExperimentalLocationsAPI
+@Location("/{id}")
+data class DeleteUser(val id: Long)

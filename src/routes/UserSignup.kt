@@ -35,8 +35,7 @@ fun Route.signup() {
 
     suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
         validator: Validator<UserForm>,
-        edit: Boolean,
-        success: (Pair<UserForm, String?>) -> User
+        success: suspend (Pair<UserForm, String?>) -> Unit
     ) {
         val multipart = call.receiveMultipart()
 
@@ -49,7 +48,6 @@ fun Route.signup() {
                     if (part.name != "form") return@forEachPart
 
                     form = parseForm(part.value)
-                    form!!.nickChange = edit && session.username != form!!.nickname
 
                     validator.validate(form!!)
                 }
@@ -70,28 +68,30 @@ fun Route.signup() {
             part.dispose()
         }
 
-        val u = success(Pair(form!!, image))
-
-        session.username = u.nickname
-
-        call.respond(
-            if (session.userId == null) HttpStatusCode.OK else mapOf("token" to authenticationService.token(session))
-        )
+        success(Pair(form!!, image))
     }
 
     post("/signup") {
         session.userId?.let { return@post call.respond(HttpStatusCode.NoContent) }
 
-        handleMultipart(userRegisterFormValidator, false) {
+        handleMultipart(userRegisterFormValidator) {
             userService.add(it.first.toUser(it.second))
+            call.respond(HttpStatusCode.OK)
         }
     }
 
     put("/profile/edit") {
         assertIdentified()
 
-        handleMultipart(userEditFormValidator, true) {
-            userService.update(it.first.toUser(it.second))
+        handleMultipart(userEditFormValidator) {
+            val form = it.first
+            userService.update(form.toUser(if (form.deletePhoto) "" else it.second))
+
+            val adminChange = form.id != session.userId
+            if (!adminChange)
+                session.username = form.nickname
+
+            call.respond(if (adminChange) HttpStatusCode.OK else mapOf("token" to authenticationService.token(session)))
         }
     }
 }
@@ -107,10 +107,9 @@ data class UserForm(
     val password: String,
     val repeatedPassword: String,
     val nickname: String,
-    val description: String
+    val description: String,
+    val deletePhoto: Boolean = false
 ) {
-    var nickChange = false
-
     fun toUser(profileImage: String?) =
         User(
             id,

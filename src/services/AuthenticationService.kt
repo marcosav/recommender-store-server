@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.*
+import com.gmail.marcosav2010.routes.ForbiddenException
 import com.gmail.marcosav2010.routes.UnauthorizedException
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -53,6 +54,9 @@ inline val PipelineContext<*, ApplicationCall>.safeSession: Session? get() = cal
 inline val PipelineContext<*, ApplicationCall>.session: Session get() = safeSession!!
 
 fun PipelineContext<*, ApplicationCall>.assertIdentified() = session.userId ?: throw UnauthorizedException()
+fun PipelineContext<*, ApplicationCall>.assertAdmin() {
+    if (!session.isAdmin) throw ForbiddenException()
+}
 
 fun Authentication.Configuration.setupJWT(di: DI) {
     jwt {
@@ -68,9 +72,13 @@ fun Authentication.Configuration.setupJWT(di: DI) {
             val userId = it.payload.claims[Constants.USER_ID_CLAIM]?.asLong()
             val username = it.payload.claims[Constants.USERNAME_CLAIM]?.asString()
 
-            if (userId != null)
-                roleService.findForUser(userId)?.let { r -> Session(sessionId, userId, username, r, cart) }
-            else
+            if (userId != null) {
+                val role = if (it.payload.claims[Constants.ROLE_CLAIM]?.asBoolean() == true)
+                    roleService.findForUser(userId) ?: throw Exception("Unknown user")
+                else
+                    Role.MEMBER
+                Session(sessionId, userId, username, role, cart)
+            } else
                 Session(sessionId, null, null, Role.ANONYMOUS, cart)
         }
     }

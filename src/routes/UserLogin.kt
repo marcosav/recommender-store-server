@@ -34,7 +34,7 @@ fun Route.login() {
             if (!BCryptEncoder.verify(it.password, matched.password))
                 throw UnauthorizedException()
 
-            val role = roleService.findForUser(matched.id!!, true)
+            val role = roleService.findForUser(matched.id!!)
 
             val cart = session.cart.let { c -> cartService.mergeCarts(matched.id, c) }
 

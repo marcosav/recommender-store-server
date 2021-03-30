@@ -35,30 +35,40 @@ fun Route.product() {
         val imageValidator by di().instance<ImageValidator>()
 
         suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
-            success: (Pair<ProductForm, Array<String?>>) -> Unit,
-            formCheck: (ProductForm) -> Unit = {}
+                success: (Pair<ProductForm, Array<String?>>) -> Unit,
+                formCheck: (ProductForm) -> Unit = {}
         ) {
             val multipart = call.receiveMultipart()
 
             var form: ProductForm? = null
             val images = arrayOfNulls<String>(Constants.MAX_IMAGES_PER_PRODUCT)
+            val deleted = mutableSetOf<Byte>()
 
             multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> {
-                        if (part.name != "form") return@forEachPart
+                        if (part.name == "form") {
+                            form = parseForm(part.value)
 
-                        form = parseForm(part.value)
+                            formCheck(form!!)
 
-                        formCheck(form!!)
+                            productValidator.validate(form!!)
 
-                        productValidator.validate(form!!)
+                        } else if (part.name?.startsWith("delete") == true) {
+                            val index = part.name?.replace("delete", "")?.toByteOrNull()
+                                    ?: throw BadRequestException()
+
+                            if (index < 0 || index >= Constants.MAX_IMAGES_PER_PRODUCT)
+                                throw BadRequestException()
+
+                            deleted.add(index)
+                        }
                     }
                     is PartData.FileItem -> {
                         if (part.name?.startsWith("file") != true) return@forEachPart
 
                         val index = part.name?.replace("file", "")?.toIntOrNull()
-                            ?: throw BadRequestException()
+                                ?: throw BadRequestException()
 
                         if (index < 0 || index >= Constants.MAX_IMAGES_PER_PRODUCT)
                             throw BadRequestException()
@@ -72,11 +82,14 @@ fun Route.product() {
                             }
                         }
                     }
+                    else -> {
+                    }
                 }
 
                 part.dispose()
             }
 
+            form!!.deletedImages = deleted
             success(Pair(form!!, images))
 
             call.respond(HttpStatusCode.OK)
@@ -121,6 +134,7 @@ fun Route.product() {
             assertIdentified()
 
             handleMultipart({
+                productService.deleteImages(it.first.id!!, it.first.deletedImages)
                 productService.update(it.first.toProduct(it.second))
             }) {
                 val userId = session.userId!!
@@ -162,27 +176,28 @@ fun Route.product() {
 private fun parseForm(str: String): ProductForm = Gson().fromJson(str, ProductForm::class.java)
 
 data class ProductForm(
-    val id: Long? = null,
-    val name: String,
-    val description: String,
-    val price: String,
-    val stock: String,
-    val category: Long,
-    val hidden: Boolean,
+        val id: Long? = null,
+        val name: String,
+        val description: String,
+        val price: String,
+        val stock: String,
+        val category: Long,
+        val hidden: Boolean,
 ) {
+    lateinit var deletedImages: Set<Byte>
 
     fun toProduct(images: Array<String?>, userId: Long? = null) =
-        Product(
-            id,
-            name,
-            "%.2f".format(price.toDouble()).toDouble(),
-            stock.toInt(),
-            ProductCategory(category),
-            hidden,
-            description,
-            images.mapIndexed { i, s -> s?.let { ProductImage(i.toByte(), s) } }.filterNotNull(),
-            userId = userId
-        )
+            Product(
+                    id,
+                    name,
+                    "%.2f".format(price.toDouble()).toDouble(),
+                    stock.toInt(),
+                    ProductCategory(category),
+                    hidden,
+                    description,
+                    images.mapIndexed { i, s -> s?.let { ProductImage(i.toByte(), s) } }.filterNotNull(),
+                    userId = userId
+            )
 }
 
 @KtorExperimentalLocationsAPI

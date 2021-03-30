@@ -32,5 +32,5 @@ class CartService(di: DI) {
     private fun service(session: Session) = if (session.userId != null) loggedCS else sessionCS
 
     private fun SessionCart.updatedToken(session: Session) =
-        authService.token(session.sessionId, this, session.userId, session.username, session.role).also { println(session.role) }
+        authService.token(session.sessionId, this, session.userId, session.username, session.role)
 }

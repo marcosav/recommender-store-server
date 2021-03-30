@@ -54,7 +54,6 @@ class UserService(di: DI) {
 
     fun delete(id: Long): Unit = transaction {
         UserEntity.delete(id)
-        // Check Database::useNestedTransactions
         productService.deleteForUser(id)
     }
 }

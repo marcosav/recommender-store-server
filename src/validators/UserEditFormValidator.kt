@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.validators
 
 import com.gmail.marcosav2010.Constants
+import com.gmail.marcosav2010.routes.BadRequestException
 import com.gmail.marcosav2010.routes.UserForm
 import com.gmail.marcosav2010.services.UserService
 import org.kodein.di.DI
@@ -30,7 +31,8 @@ class UserEditFormValidator(di: DI) : Validator<UserForm>() {
         maxLength("name", it.name, Constants.MAX_NAME_LENGTH)
         maxLength("surname", it.surname, Constants.MAX_SURNAME_LENGTH)
 
-        if (it.nickChange)
+        val user = userService.findById(it.id!!) ?: throw BadRequestException()
+        if (user.nickname != it.nickname)
             existing("nickname", userService.findByExactNickname(it.nickname) != null)
     }
 }

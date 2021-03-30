@@ -44,6 +44,7 @@ object Constants {
     const val MAX_PRODUCT_STOCK = 99999
     const val MAX_IMAGES_PER_PRODUCT = 8
 
+    const val MIN_PRODUCT_REPORT_DESC_LENGTH = 20
     const val MAX_PRODUCT_REPORT_DESC_LENGTH = 300
 
     /*  */

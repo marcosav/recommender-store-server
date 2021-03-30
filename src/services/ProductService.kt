@@ -70,6 +70,11 @@ class ProductService {
         ProductEntity.delete(id)
     }
 
+    fun deleteImages(id: Long, indices: Iterable<Byte>): Unit = transaction {
+        ProductImageEntity.remove(id, indices)
+        ProductEntity.deleteForUser(id)
+    }
+
     fun deleteForUser(id: Long): Unit = transaction {
         ProductEntity.deleteForUser(id)
     }

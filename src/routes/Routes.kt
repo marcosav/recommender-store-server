@@ -27,6 +27,7 @@ fun Application.setupRoutes() {
                 signup()
                 users()
                 product()
+                productReports()
                 cart()
                 favorites()
             }

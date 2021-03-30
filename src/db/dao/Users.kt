@@ -44,7 +44,7 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 if (user.password.isNotBlank())
                     password = user.password
                 description = user.description
-                user.profileImgUri?.let { profileImgUri = it }
+                user.profileImgUri?.let { profileImgUri = if (it.isBlank()) null else it }
                 nickname = user.nickname
             }
 
