@@ -17,10 +17,12 @@ class LoggedCartService : ICartService {
             val userId = session.userId!!
             val current = CartProductEntity.findByUserAndProduct(userId, productId).firstOrNull()
             if (current != null) {
-                if (amount > 0 && add)
+                if (amount > 0L && add)
                     CartProductEntity.increaseAmount(current.id.value, amount)
                 else if (amount == 0L && !add)
                     remove(session, productId)
+                else if (amount > 0L && !add)
+                    CartProductEntity.update(current.id.value, amount)
             } else if (amount > 0L)
                 CartProductEntity.add(userId, productId, amount).toCartProduct()
 

@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010.routes
 
+import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.session
@@ -31,6 +32,7 @@ fun Route.cart() {
             if (product?.hidden != false)
                 throw NotFoundException()
 
+            it.product = product
             cartUpdateValidator.validate(it)
 
             val cart = cartService.updateProductAmount(
@@ -61,4 +63,6 @@ data class CartResponse(val token: String)
 
 data class DeleteCartProduct(val productId: Long)
 
-data class UpdateCartProduct(val productId: Long, val amount: Long, val add: Boolean = false)
+data class UpdateCartProduct(val productId: Long, val amount: Long, val add: Boolean = false) {
+    lateinit var product: Product
+}
