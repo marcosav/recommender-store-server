@@ -18,7 +18,7 @@ object Users : LongIdTable() {
     val profileImgUri = text("profile_img_uri").nullable()
     val nickname = text("nickname")
     val description = text("description")
-    val registerDate = timestamp("register_date").default(Instant.now())
+    val registerDate = timestamp("register_date")
     val deleted = bool("deleted").default(false)
 }
 
@@ -35,6 +35,7 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
                 profileImgUri = user.profileImgUri
                 nickname = user.nickname
                 description = user.description
+                registerDate = Instant.now()
             }
 
         fun update(user: User) =

@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.model.Product
+import com.gmail.marcosav2010.services.FavoriteService
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.cart.CartService
 import com.gmail.marcosav2010.services.session
@@ -19,11 +20,15 @@ fun Route.cart() {
 
         val cartService by di().instance<CartService>()
         val productService by di().instance<ProductService>()
+        val favoriteService by di().instance<FavoriteService>()
 
         val cartUpdateValidator by di().instance<CartUpdateValidator>()
 
         get {
             val cart = cartService.getCurrentCart(session)
+            session.userId?.let { uid ->
+                cart.onEach { it.product.fav = favoriteService.isFavoriteProduct(it.product.id, uid) }
+            }
             call.respond(cart)
         }
 

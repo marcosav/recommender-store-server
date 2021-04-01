@@ -11,7 +11,7 @@ import java.time.Instant
 object FavoriteVendors : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val vendor = reference("vendor", Users, onDelete = ReferenceOption.CASCADE)
-    val date = timestamp("date").default(Instant.now())
+    val date = timestamp("date")
 
     init {
         uniqueIndex(user, vendor)
@@ -42,6 +42,7 @@ class FavoriteVendorEntity(id: EntityID<Long>) : LongEntity(id) {
             new {
                 vendor = UserEntity[vendorId]
                 user = UserEntity[userId]
+                date = Instant.now()
             }
 
         fun delete(userId: Long, vendorId: Long) =
@@ -50,5 +51,5 @@ class FavoriteVendorEntity(id: EntityID<Long>) : LongEntity(id) {
 
     var user by UserEntity referencedOn FavoriteVendors.user
     var vendor by UserEntity referencedOn FavoriteVendors.vendor
-    var date by FavoriteProducts.date
+    var date by FavoriteVendors.date
 }

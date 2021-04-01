@@ -16,8 +16,8 @@ import java.time.Instant
 object Products : LongIdTable() {
     val name = text("name")
     val description = text("description")
-    val date = timestamp("date").default(Instant.now())
-    val lastUpdated = timestamp("last_updated").default(Instant.now())
+    val date = timestamp("date")
+    val lastUpdated = timestamp("last_updated")
     val price = double("price")
     val stock = integer("stock")
     val user = reference("user", Users)
@@ -41,10 +41,9 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 category = ProductCategoryEntity[product.category.id]
                 hidden = product.hidden
 
-                product.date?.let {
-                    date = it
-                    lastUpdated = it
-                }
+                val d = product.date ?: Instant.now()
+                date = d
+                lastUpdated = d
 
                 user = UserEntity[product.userId!!]
             }

@@ -26,7 +26,6 @@ object Constants {
     const val MAX_IMAGE_MB_SIZE = 14
     const val MAX_IMAGE_BYTE_SIZE = MAX_IMAGE_MB_SIZE * 1024 * 1024
     val ALLOWED_IMAGE_EXT = arrayOf("jpeg", "jpg", "png")
-    const val MAX_IMAGE_SIZE = 1920
 
     const val MAX_ADDRESS_RECIPIENT_LENGTH = 100
     const val MAX_ADDRESS_CODE_LENGTH = 10
@@ -52,6 +51,7 @@ object Constants {
 
     /*  */
     const val PRODUCTS_PER_PAGE = 25
+    const val REPORTS_PER_PAGE = 25
 
     /* */
     const val SESSION_DURATION = 7 * 24 * 3600L

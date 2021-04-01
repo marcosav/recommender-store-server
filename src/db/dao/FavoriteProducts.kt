@@ -11,7 +11,7 @@ import java.time.Instant
 object FavoriteProducts : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
-    val date = timestamp("date").default(Instant.now())
+    val date = timestamp("date")
 
     init {
         uniqueIndex(user, product)
@@ -45,6 +45,7 @@ class FavoriteProductEntity(id: EntityID<Long>) : LongEntity(id) {
             new {
                 product = ProductEntity[productId]
                 user = UserEntity[userId]
+                date = Instant.now()
             }
 
         fun delete(userId: Long, productId: Long) =

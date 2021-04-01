@@ -13,7 +13,7 @@ object CartProducts : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
     val amount = long("amount")
-    val lastUpdated = timestamp("last_updated").default(Instant.now())
+    val lastUpdated = timestamp("last_updated")
 
     init {
         uniqueIndex(user, product)
@@ -41,11 +41,13 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
             CartProducts.update({ CartProducts.id eq id }) {
                 with(SqlExpressionBuilder) {
                     it.update(CartProducts.amount, CartProducts.amount + amount)
+                    it[lastUpdated] = Instant.now()
                 }
             }
 
         fun update(id: Long, amount: Long) = CartProductEntity[id].apply {
             this.amount = amount
+            this.lastUpdated = Instant.now()
         }
 
         fun clear(userId: Long) = CartProducts.deleteWhere { CartProducts.user eq userId }

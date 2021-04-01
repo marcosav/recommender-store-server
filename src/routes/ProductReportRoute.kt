@@ -41,16 +41,18 @@ fun Route.productReports() {
 
             productReportValidator.validate(it)
             productReportService.add(it.toReport(userId))
+
+            call.respond(HttpStatusCode.OK)
         }
 
         get<ProductReports> {
             assertAdmin()
 
-            val offset = it.page * Constants.PRODUCTS_PER_PAGE
+            val offset = it.page * Constants.REPORTS_PER_PAGE
             val reports = if (it.productId == null)
-                productReportService.findAll(Constants.PRODUCTS_PER_PAGE, offset)
+                productReportService.findAll(Constants.REPORTS_PER_PAGE, offset)
             else
-                productReportService.findByProduct(it.productId, Constants.PRODUCTS_PER_PAGE, offset)
+                productReportService.findByProduct(it.productId, Constants.REPORTS_PER_PAGE, offset)
 
             call.respond(reports)
         }

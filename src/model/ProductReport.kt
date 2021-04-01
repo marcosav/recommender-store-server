@@ -7,5 +7,7 @@ data class ProductReport(
     val productId: Long,
     val reason: String,
     val userId: Long,
-    val date: Instant? = null
+    val date: Instant? = null,
+    val productName: String? = null,
+    val userNickname: String? = null
 )

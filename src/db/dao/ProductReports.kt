@@ -13,7 +13,7 @@ object ProductReports : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
     val reason = text("reason")
-    val date = timestamp("date").default(Instant.now())
+    val date = timestamp("date")
 
     init {
         uniqueIndex(user, product)
@@ -28,6 +28,7 @@ class ProductReportEntity(id: EntityID<Long>) : LongEntity(id) {
                 product = ProductEntity[report.productId]
                 reason = report.reason
                 user = UserEntity[report.userId]
+                date = Instant.now()
             }
 
         fun delete(id: Long) = findById(id)?.delete()
@@ -43,5 +44,5 @@ class ProductReportEntity(id: EntityID<Long>) : LongEntity(id) {
     var reason by ProductReports.reason
     var date by ProductReports.date
 
-    fun toReport() = ProductReport(id.value, product.id.value, reason, user.id.value, date)
+    fun toReport() = ProductReport(id.value, product.id.value, reason, user.id.value, date, product.name, user.nickname)
 }
