@@ -12,7 +12,7 @@ import java.time.Instant
 object CartProducts : LongIdTable() {
     val user = reference("user", Users, onDelete = ReferenceOption.CASCADE)
     val product = reference("product", Products, onDelete = ReferenceOption.CASCADE)
-    val amount = long("amount")
+    val amount = integer("amount")
     val lastUpdated = timestamp("last_updated")
 
     init {
@@ -29,7 +29,7 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun findByUserAndProduct(userId: Long, productId: Long) =
             find { (CartProducts.user eq userId) and (CartProducts.product eq productId) }
 
-        fun add(userId: Long, productId: Long, amount: Long) =
+        fun add(userId: Long, productId: Long, amount: Int) =
             new {
                 product = ProductEntity[productId]
                 user = UserEntity[userId]
@@ -37,7 +37,7 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 lastUpdated = Instant.now()
             }
 
-        fun increaseAmount(id: Long, amount: Long) =
+        fun increaseAmount(id: Long, amount: Int) =
             CartProducts.update({ CartProducts.id eq id }) {
                 with(SqlExpressionBuilder) {
                     it.update(CartProducts.amount, CartProducts.amount + amount)
@@ -45,7 +45,7 @@ class CartProductEntity(id: EntityID<Long>) : LongEntity(id) {
                 }
             }
 
-        fun update(id: Long, amount: Long) = CartProductEntity[id].apply {
+        fun update(id: Long, amount: Int) = CartProductEntity[id].apply {
             this.amount = amount
             this.lastUpdated = Instant.now()
         }

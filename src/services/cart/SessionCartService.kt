@@ -12,12 +12,9 @@ class SessionCartService(di: DI) : ICartService {
 
     private val productService by di.instance<ProductService>()
 
-    override fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean): SessionCart {
+    override fun updateProductAmount(session: Session, productId: Long, amount: Int, add: Boolean): SessionCart {
         val cart = session.mCart
-        if (!add && amount == 0L) {
-            return remove(session, productId)
-
-        } else with(cart.find { it.id == productId }) {
+        with(cart.find { it.id == productId }) {
             if (this != null)
                 this.amount = if (add) this.amount + amount else amount
             else

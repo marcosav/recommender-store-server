@@ -125,7 +125,6 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             date,
             visits,
             rating,
-            //deleted,
             user.id.value,
             user.nickname
         )

@@ -25,7 +25,7 @@ class FavoriteProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun findByUser(userId: Long) =
             Products.fullJoin(FavoriteProducts).leftJoin(ProductImages)
                 .select {
-                    not(Products.deleted)
+                    not(Products.deleted).and(not(Products.hidden))
                         .and((ProductImages.index.isNull()) or (ProductImages.index eq 0))
                         .and(FavoriteProducts.user eq userId)
                 }

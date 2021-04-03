@@ -1,6 +1,7 @@
 package com.gmail.marcosav2010.model
 
 data class Address(
+    val id: Long? = null,
     val recipient: String,
     val code: String,
     val city: String,

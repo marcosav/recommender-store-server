@@ -60,8 +60,10 @@ class ProductService {
     }
 
     fun update(product: Product): Product = transaction {
-        ProductImageEntity.remove(product.id!!, product.images.map { p -> p.i })
-        ProductImageEntity.add(product.id, product.images)
+        if (product.images.isNotEmpty()) {
+            ProductImageEntity.remove(product.id!!, product.images.map { p -> p.i })
+            ProductImageEntity.add(product.id, product.images)
+        }
 
         ProductEntity.update(product).toProduct()
     }

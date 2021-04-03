@@ -12,15 +12,13 @@ class LoggedCartService : ICartService {
         CartProductEntity.findByUser(userId).map { it.toCartProduct() }
     }
 
-    override fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean): SessionCart =
+    override fun updateProductAmount(session: Session, productId: Long, amount: Int, add: Boolean): SessionCart =
         transaction {
             val userId = session.userId!!
             val current = CartProductEntity.findByUserAndProduct(userId, productId).firstOrNull()
             if (current != null) {
                 if (amount > 0L && add)
                     CartProductEntity.increaseAmount(current.id.value, amount)
-                else if (amount == 0L && !add)
-                    remove(session, productId)
                 else if (amount > 0L && !add)
                     CartProductEntity.update(current.id.value, amount)
             } else if (amount > 0L)

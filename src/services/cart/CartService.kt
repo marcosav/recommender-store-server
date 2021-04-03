@@ -18,7 +18,7 @@ class CartService(di: DI) {
 
     fun getCurrentCart(session: Session): List<CartProductPreview> = service(session).getCurrentCart(session)
 
-    fun updateProductAmount(session: Session, productId: Long, amount: Long, add: Boolean) =
+    fun updateProductAmount(session: Session, productId: Long, amount: Int, add: Boolean) =
         service(session).updateProductAmount(session, productId, amount, add).updatedToken(session)
 
     fun mergeCarts(userId: Long, items: SessionCart) =

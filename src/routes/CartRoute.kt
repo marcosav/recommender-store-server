@@ -25,7 +25,14 @@ fun Route.cart() {
         val cartUpdateValidator by di().instance<CartUpdateValidator>()
 
         get {
-            val cart = cartService.getCurrentCart(session)
+            val cart = cartService.getCurrentCart(session).onEach {
+                it.unavailable = productService.findById(it.product.id)?.hidden != false
+                if (it.unavailable == true) {
+                    it.amount = 0
+                    it.product = it.product.asDeleted()
+                }
+            }
+
             session.userId?.let { uid ->
                 cart.onEach { it.product.fav = favoriteService.isFavoriteProduct(it.product.id, uid) }
             }
@@ -68,6 +75,6 @@ data class CartResponse(val token: String)
 
 data class DeleteCartProduct(val productId: Long)
 
-data class UpdateCartProduct(val productId: Long, val amount: Long, val add: Boolean = false) {
+data class UpdateCartProduct(val productId: Long, val amount: Int, val add: Boolean = false) {
     lateinit var product: Product
 }

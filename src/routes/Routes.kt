@@ -30,6 +30,8 @@ fun Application.setupRoutes() {
                 productReports()
                 cart()
                 favorites()
+                checkout()
+                orders()
             }
         }
     }

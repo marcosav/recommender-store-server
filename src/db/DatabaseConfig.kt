@@ -32,7 +32,9 @@ private fun createTables() = transaction {
         CartProducts,
         ProductReports,
         UserRoles,
-        ProductImages
+        ProductImages,
+        Orders,
+        OrderedProducts
     )
 
     //SchemaUtils.populate()

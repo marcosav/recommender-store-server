@@ -6,11 +6,11 @@ data class Product(
     val id: Long?,
     val name: String,
     val price: Double,
-    val stock: Int,
+    var stock: Int,
     val category: ProductCategory,
     val hidden: Boolean,
     val description: String,
-    val images: List<ProductImage> = emptyList(),
+    var images: List<ProductImage> = emptyList(),
     val lastUpdated: Instant? = null,
     val date: Instant? = null,
     val visits: Int? = null,
@@ -30,7 +30,11 @@ data class PreviewProduct(
     val visits: Int? = null,
     val rating: Double? = null,
     var fav: Boolean? = null
-)
+) {
+    fun asDeleted() = PreviewProduct(
+        id, name, -1.0, -1, null
+    )
+}
 
 data class ProductImage(
     val i: Byte,

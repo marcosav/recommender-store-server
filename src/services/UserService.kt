@@ -37,9 +37,9 @@ class UserService(di: DI) {
     fun findByUsername(username: String): User? =
         transaction { UserEntity.findByUsername(username.dropFrom(Constants.MAX_EMAIL_LENGTH))?.toUser() }
 
-    fun findUserAddresses(id: Long): List<Address> = transaction {
+    /*fun findUserAddresses(id: Long): List<Address> = transaction {
         UserEntity.findByIdNotDeleted(id)?.addresses?.map { it.toAddress() } ?: emptyList()
-    }
+    }*/
 
     fun add(user: User): User {
         user.password = BCryptEncoder.encode(user.password)

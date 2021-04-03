@@ -77,7 +77,6 @@ class UserEntity(id: EntityID<Long>) : LongEntity(id) {
     var registerDate by Users.registerDate
     var deleted by Users.deleted
 
-    val addresses by AddressEntity referrersOn Addresses.user
     val products by ProductEntity referrersOn Products.user
     val favoriteProducts by FavoriteProductEntity referrersOn FavoriteProducts.user
     val favoriteVendors by FavoriteVendorEntity referrersOn FavoriteVendors.user

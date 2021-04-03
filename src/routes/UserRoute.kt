@@ -55,6 +55,19 @@ fun Route.users() {
 
             call.respond(HttpStatusCode.OK)
         }
+
+        /*get<UserAddressPath> {
+            assertIdentified()
+
+            val user = userService.findById(it.id) ?: throw NotFoundException()
+
+            if (session.userId != user.id && !session.isAdmin)
+                throw ForbiddenException()
+
+            val addresses = userService.findUserAddresses(user.id!!)
+
+            call.respond(addresses)
+        }*/
     }
 }
 
@@ -65,6 +78,10 @@ data class UserSearch(val query: String, val page: Int = 0, val category: Long? 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
 data class UserProfile(val id: Long, val detailed: Boolean = false)
+
+@KtorExperimentalLocationsAPI
+@Location("/{id}/addresses")
+data class UserAddressPath(val id: Long)
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")

@@ -7,7 +7,7 @@ class CartUpdateValidator : Validator<UpdateCartProduct>() {
 
     override fun validation(): ValidationContext.(UpdateCartProduct) -> Unit = {
 
-        max("amount", it.amount, it.product.stock.toLong())
+        max("amount", it.amount, it.product.stock)
         min("amount", it.amount, 0)
     }
 }
