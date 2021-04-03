@@ -2,7 +2,6 @@ package com.gmail.marcosav2010.services
 
 import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.db.dao.UserEntity
-import com.gmail.marcosav2010.model.Address
 import com.gmail.marcosav2010.model.PublicUser
 import com.gmail.marcosav2010.model.User
 import com.gmail.marcosav2010.utils.BCryptEncoder
@@ -36,10 +35,6 @@ class UserService(di: DI) {
 
     fun findByUsername(username: String): User? =
         transaction { UserEntity.findByUsername(username.dropFrom(Constants.MAX_EMAIL_LENGTH))?.toUser() }
-
-    /*fun findUserAddresses(id: Long): List<Address> = transaction {
-        UserEntity.findByIdNotDeleted(id)?.addresses?.map { it.toAddress() } ?: emptyList()
-    }*/
 
     fun add(user: User): User {
         user.password = BCryptEncoder.encode(user.password)

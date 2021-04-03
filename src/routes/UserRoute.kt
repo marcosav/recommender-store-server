@@ -17,6 +17,7 @@ fun Route.users() {
 
         val userService by di().instance<UserService>()
         val favoriteService by di().instance<FavoriteService>()
+        val orderService by di().instance<OrderService>()
 
         get<UserSearch> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
@@ -56,18 +57,16 @@ fun Route.users() {
             call.respond(HttpStatusCode.OK)
         }
 
-        /*get<UserAddressPath> {
+        get<UserAddressPath> {
             assertIdentified()
 
-            val user = userService.findById(it.id) ?: throw NotFoundException()
-
-            if (session.userId != user.id && !session.isAdmin)
+            if (session.userId != it.id && !session.isAdmin)
                 throw ForbiddenException()
 
-            val addresses = userService.findUserAddresses(user.id!!)
+            val addresses = orderService.findLastAddressesForUser(it.id)
 
             call.respond(addresses)
-        }*/
+        }
     }
 }
 
@@ -80,9 +79,9 @@ data class UserSearch(val query: String, val page: Int = 0, val category: Long? 
 data class UserProfile(val id: Long, val detailed: Boolean = false)
 
 @KtorExperimentalLocationsAPI
-@Location("/{id}/addresses")
-data class UserAddressPath(val id: Long)
-
-@KtorExperimentalLocationsAPI
 @Location("/{id}")
 data class DeleteUser(val id: Long)
+
+@KtorExperimentalLocationsAPI
+@Location("/{id}/addresses")
+data class UserAddressPath(val id: Long)

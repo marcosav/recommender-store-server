@@ -32,4 +32,7 @@ class OrderService {
     }
 
     fun findById(id: Long) = transaction { OrderEntity.findById(id) }
+
+    fun findLastAddressesForUser(userId: Long) =
+        transaction { OrderEntity.findLastAddressesForUser(userId, 4).map { it.toAddress() } }
 }

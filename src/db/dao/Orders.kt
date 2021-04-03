@@ -5,7 +5,9 @@ import com.gmail.marcosav2010.model.OrderedProduct
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.mapLazy
 import java.time.Instant
 
 object Orders : LongIdTable() {
@@ -25,6 +27,10 @@ class OrderEntity(id: EntityID<Long>) : LongEntity(id) {
         }
 
         fun findByUser(userId: Long) = find { Orders.user eq userId }
+
+        fun findLastAddressesForUser(userId: Long, limit: Int) =
+            find { Orders.user eq userId }.orderBy(Pair(Orders.date, SortOrder.DESC)).limit(limit)
+                .mapLazy { it.address }
     }
 
     var date by Orders.date
