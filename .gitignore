@@ -5,5 +5,5 @@
 *.iml
 *.ipr
 *.iws
-.env
+/*.env
 /public
