@@ -6,6 +6,12 @@ object Constants {
     const val PUBLIC_PATH_ENV = "PUBLIC_PATH"
     const val IMG_PATH_ENV = "IMG_PATH"
     const val JWT_SECRET_ENV = "JWT_SECRET"
+    const val ALLOWED_HOSTS_ENV = "ALLOWED_HOSTS"
+    const val DATABASE_SOURCE = "DATABASE_SOURCE"
+    const val DATABASE_HOST = "DATABASE_HOST"
+    const val DATABASE_NAME = "DATABASE_NAME"
+    const val DATABASE_USER = "DATABASE_USER"
+    const val DATABASE_PASSWORD = "DATABASE_PASSWORD"
 
     /* */
     const val DEFAULT_PUBLIC_PATH = "public"

@@ -1,0 +1,54 @@
+version: "3"
+services:
+  backend:
+    restart: always
+    build: .
+    container_name: recommender-store-server
+    depends_on:
+      - postgres
+    ports:
+      - "8080:80"
+    environment:
+      - .env
+  postgres:
+    restart: always
+    image: postgres:alpine
+    container_name: store-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    environment:
+      - .env
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    depends_on:
+      - backend
+  letsencrypt:
+    restart: always
+    container_name: letsencrypt
+    image: nginxproxy/acme-companion
+    volumes:
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+volumes:
+  database:
+  html:
+  certs:
+  vhost:
+  acme:

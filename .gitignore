@@ -5,8 +5,5 @@
 *.iml
 *.ipr
 *.iws
-
-dbconfig.properties
-CertificateGenerator.kt
-
+.env
 /public

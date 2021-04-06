@@ -27,11 +27,6 @@ fun Application.module(testing: Boolean = false) {
 
     setupDB()
 
-    if (!testing)
-        install(HttpsRedirect) {
-            permanentRedirect = true
-        }
-
     install(ContentNegotiation) { gson {} }
     install(Locations)
     install(Compression) { gzip(); deflate() }
@@ -45,7 +40,9 @@ fun Application.module(testing: Boolean = false) {
         header(HttpHeaders.Authorization)
         allowCredentials = true
 
-        anyHost() // Don't do this in production if possible. Try to limit it.
+        kotlin.runCatching { System.getenv(Constants.ALLOWED_HOSTS_ENV) }.getOrNull()?.let {
+            it.split(",").filter { h -> h.isNotBlank() }.forEach { h -> host(h) }
+        }
     }
 
     di {
