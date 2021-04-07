@@ -2,7 +2,8 @@ version: "3"
 services:
   backend:
     restart: always
-    build: .
+    #build: .
+    image: marcosav/recommender-store-server
     container_name: recommender-store-server
     depends_on:
       - postgres
