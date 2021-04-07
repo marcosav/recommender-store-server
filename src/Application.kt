@@ -41,7 +41,8 @@ fun Application.module(testing: Boolean = false) {
         allowCredentials = true
 
         kotlin.runCatching { System.getenv(Constants.ALLOWED_HOSTS_ENV) }.getOrNull()?.let {
-            it.split(",").filter { h -> h.isNotBlank() }.forEach { h -> host(h) }
+            it.split(",").filter { h -> h.isNotBlank() }
+                .forEach { h -> if (h.startsWith("localhost")) host(h) else host(h, listOf("https")) }
         }
     }
 

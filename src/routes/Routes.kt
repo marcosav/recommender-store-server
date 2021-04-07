@@ -8,7 +8,7 @@ import io.ktor.http.content.*
 import io.ktor.locations.*
 import io.ktor.routing.*
 
-const val API_ROUTE = "/api/v${Constants.API_VERSION}"
+const val API_ROUTE = "/v${Constants.API_VERSION}"
 
 @KtorExperimentalLocationsAPI
 fun Application.setupRoutes() {
