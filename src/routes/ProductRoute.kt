@@ -35,8 +35,8 @@ fun Route.product() {
         val imageValidator by di().instance<ImageValidator>()
 
         suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
-                success: (Pair<ProductForm, Array<String?>>) -> Unit,
-                formCheck: (ProductForm) -> Unit = {}
+            success: (Pair<ProductForm, Array<String?>>) -> Product,
+            formCheck: (ProductForm) -> Unit = {}
         ) {
             val multipart = call.receiveMultipart()
 
@@ -56,7 +56,7 @@ fun Route.product() {
 
                         } else if (part.name?.startsWith("delete") == true) {
                             val index = part.name?.replace("delete", "")?.toByteOrNull()
-                                    ?: throw BadRequestException()
+                                ?: throw BadRequestException()
 
                             if (index < 0 || index >= Constants.MAX_IMAGES_PER_PRODUCT)
                                 throw BadRequestException()
@@ -68,7 +68,7 @@ fun Route.product() {
                         if (part.name?.startsWith("file") != true) return@forEachPart
 
                         val index = part.name?.replace("file", "")?.toIntOrNull()
-                                ?: throw BadRequestException()
+                            ?: throw BadRequestException()
 
                         if (index < 0 || index >= Constants.MAX_IMAGES_PER_PRODUCT)
                             throw BadRequestException()
@@ -90,9 +90,10 @@ fun Route.product() {
             }
 
             form!!.deletedImages = deleted
-            success(Pair(form!!, images))
+            val id = success(Pair(form!!, images)).id
 
-            call.respond(HttpStatusCode.OK)
+            requireNotNull(id)
+            call.respond(id)
         }
 
         get("/categories") {
@@ -176,28 +177,30 @@ fun Route.product() {
 private fun parseForm(str: String): ProductForm = Gson().fromJson(str, ProductForm::class.java)
 
 data class ProductForm(
-        val id: Long? = null,
-        val name: String,
-        val description: String,
-        val price: String,
-        val stock: String,
-        val category: Long,
-        val hidden: Boolean,
+    val id: Long? = null,
+    val name: String,
+    val brand: String,
+    val description: String,
+    val price: String,
+    val stock: String,
+    val category: Long,
+    val hidden: Boolean,
 ) {
     lateinit var deletedImages: Set<Byte>
 
     fun toProduct(images: Array<String?>, userId: Long? = null) =
-            Product(
-                    id,
-                    name,
-                    "%.2f".format(price.toDouble()).toDouble(),
-                    stock.toInt(),
-                    ProductCategory(category),
-                    hidden,
-                    description,
-                    images.mapIndexed { i, s -> s?.let { ProductImage(i.toByte(), s) } }.filterNotNull(),
-                    userId = userId
-            )
+        Product(
+            id,
+            name,
+            brand,
+            "%.2f".format(price.toDouble()).toDouble(),
+            stock.toInt(),
+            ProductCategory(category),
+            hidden,
+            description,
+            images.mapIndexed { i, s -> s?.let { ProductImage(i.toByte(), s) } }.filterNotNull(),
+            userId = userId
+        )
 }
 
 @KtorExperimentalLocationsAPI

@@ -5,6 +5,7 @@ import java.time.Instant
 data class Product(
     val id: Long?,
     val name: String,
+    val brand: String,
     val price: Double,
     var stock: Int,
     val category: ProductCategory,
@@ -23,6 +24,7 @@ data class Product(
 data class PreviewProduct(
     val id: Long,
     val name: String,
+    val brand: String,
     val price: Double,
     val stock: Int,
     val mainImage: String?,
@@ -32,7 +34,7 @@ data class PreviewProduct(
     var fav: Boolean? = null
 ) {
     fun asDeleted() = PreviewProduct(
-        id, name, -1.0, -1, null
+        id, name, brand, -1.0, -1, null
     )
 }
 

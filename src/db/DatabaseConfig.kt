@@ -45,5 +45,8 @@ private fun createTables() = transaction {
         OrderedProducts
     )
 
-    //SchemaUtils.populate()
+    if (System.getenv(Constants.POPULATE) == "yes") {
+        SchemaUtils.populate()
+        SchemaUtils.importDatasets()
+    }
 }

@@ -6,15 +6,13 @@ import com.gmail.marcosav2010.model.Product
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.timestamp
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.not
-import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
 object Products : LongIdTable() {
     val name = text("name")
+    val brand = text("brand")
     val description = text("description")
     val date = timestamp("date")
     val lastUpdated = timestamp("last_updated")
@@ -35,6 +33,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun add(product: Product) =
             new {
                 name = product.name
+                brand = product.brand
                 description = product.description
                 price = product.price
                 stock = product.stock
@@ -51,6 +50,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         fun update(product: Product) =
             ProductEntity[product.id!!].apply {
                 name = product.name
+                brand = product.brand
                 description = product.description
                 price = product.price
                 stock = product.stock
@@ -82,7 +82,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         }
 
         fun findByName(name: String, category: Long?) = find {
-            var cond = Products.name.like("%$name%")
+            var cond = Products.name.lowerCase().like("%${name.toLowerCase()}%")
                 .and(not(Products.hidden))
                 .and(not(Products.deleted))
 
@@ -92,6 +92,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
     }
 
     var name by Products.name
+    var brand by Products.brand
     var description by Products.description
     var date by Products.date
     var lastUpdated by Products.lastUpdated
@@ -115,6 +116,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         return Product(
             id.value,
             name,
+            brand,
             price,
             stock,
             category.toCategory(),
@@ -134,6 +136,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
         PreviewProduct(
             id.value,
             name,
+            brand,
             price,
             stock,
             images.firstOrNull()?.uri,

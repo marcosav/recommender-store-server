@@ -12,6 +12,7 @@ object Constants {
     const val DATABASE_NAME = "DATABASE_NAME"
     const val DATABASE_USER = "DATABASE_USER"
     const val DATABASE_PASSWORD = "DATABASE_PASSWORD"
+    const val POPULATE = "POPULATE"
 
     /* */
     const val DEFAULT_PUBLIC_PATH = "public"
@@ -27,7 +28,7 @@ object Constants {
     const val MIN_PASSWORD_LENGTH = 4
     const val MAX_NAME_LENGTH = 50
     const val MAX_SURNAME_LENGTH = 63
-    const val MAX_DESCRIPTION_LENGTH = 800
+    const val MAX_DESCRIPTION_LENGTH = 1000
 
     const val MAX_IMAGE_MB_SIZE = 14
     const val MAX_IMAGE_BYTE_SIZE = MAX_IMAGE_MB_SIZE * 1024 * 1024
@@ -43,7 +44,9 @@ object Constants {
 
     const val MIN_PRODUCT_NAME_LENGTH = 5
     const val MAX_PRODUCT_NAME_LENGTH = 50
-    const val MAX_PRODUCT_DESC_LENGTH = 1000
+    const val MIN_PRODUCT_BRAND_LENGTH = 1
+    const val MAX_PRODUCT_BRAND_LENGTH = 20
+    const val MAX_PRODUCT_DESC_LENGTH = 3000
     const val MIN_PRODUCT_PRICE = 0.01
     const val MAX_PRODUCT_PRICE = 999999.0
     const val MAX_PRODUCT_STOCK = 99999

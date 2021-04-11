@@ -34,7 +34,15 @@ class FavoriteProductEntity(id: EntityID<Long>) : LongEntity(id) {
         inline val mapToPreviewProduct
             get(): (ResultRow) -> PreviewProduct = {
                 with(Products) {
-                    PreviewProduct(it[id].value, it[name], it[price], it[stock], it[ProductImages.uri], fav = true)
+                    PreviewProduct(
+                        it[id].value,
+                        it[name],
+                        it[brand],
+                        it[price],
+                        it[stock],
+                        it[ProductImages.uri],
+                        fav = true
+                    )
                 }
             }
 

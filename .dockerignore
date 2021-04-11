@@ -12,3 +12,4 @@ docker-compose.yml
 .git
 /public
 /*.env
+/product_dataset

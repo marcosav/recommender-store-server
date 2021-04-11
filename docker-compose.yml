@@ -2,7 +2,7 @@ version: "3"
 services:
   backend:
     restart: always
-    #build: .
+#    build: .
     image: marcosav/recommender-store-server
     container_name: recommender-store-server
     depends_on:
@@ -11,6 +11,8 @@ services:
       - "8080:80"
     env_file:
       - backend.env
+#    volumes:
+#    - ./product_dataset:/app/product_dataset
   postgres:
     restart: always
     image: postgres:alpine

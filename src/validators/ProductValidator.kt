@@ -17,6 +17,10 @@ class ProductValidator(di: DI) : Validator<ProductForm>() {
         maxLength("name", it.name, Constants.MAX_PRODUCT_NAME_LENGTH)
         minLength("name", it.name, Constants.MIN_PRODUCT_NAME_LENGTH)
 
+        mandatory("brand", it.brand)
+        minLength("brand", it.brand, Constants.MIN_PRODUCT_BRAND_LENGTH)
+        maxLength("brand", it.brand, Constants.MAX_PRODUCT_BRAND_LENGTH)
+
         val parsedStock = it.stock.toIntOrNull()
         format("stock", parsedStock == null)
         val parsedPrice = it.price.toDoubleOrNull()
