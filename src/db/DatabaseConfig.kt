@@ -47,6 +47,7 @@ private fun createTables() = transaction {
 
     if (System.getenv(Constants.POPULATE) == "yes") {
         SchemaUtils.populate()
+        commit()
         SchemaUtils.importDatasets()
     }
 }

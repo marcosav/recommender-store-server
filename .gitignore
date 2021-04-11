@@ -7,4 +7,4 @@
 *.iws
 /*.env
 /public
-/product_dataset
+/product_dataset*

@@ -5,6 +5,7 @@ import com.gmail.marcosav2010.model.*
 import com.gmail.marcosav2010.utils.BCryptEncoder
 import com.google.gson.Gson
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import java.io.File
@@ -52,6 +53,7 @@ fun SchemaUtils.populate() {
         it[userId] = user.id.value
         it[role] = Role.ADMIN.id
     }
+
 }
 
 const val DATASET_NAME = "product_dataset"
@@ -68,11 +70,8 @@ fun SchemaUtils.importDatasets() {
         var count = 0
         while (reader.ready()) {
             val l = reader.readLine()
-            // Half the total
-            if (count++ % 2 == 0)
-                continue
 
-            if (count % 5000 == 0)
+            if (count++ % 2500 == 0)
                 println("Imported $count")
 
             val parsed = gson.fromJson(l, SavedProduct::class.java)
