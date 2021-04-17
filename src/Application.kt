@@ -12,6 +12,7 @@ import io.ktor.features.*
 import io.ktor.gson.*
 import io.ktor.http.*
 import io.ktor.locations.*
+import org.kodein.di.ktor.closestDI
 import org.kodein.di.ktor.di
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,10 +41,7 @@ fun Application.module(testing: Boolean = false) {
         header(HttpHeaders.Authorization)
         allowCredentials = true
 
-        kotlin.runCatching { System.getenv(Constants.ALLOWED_HOSTS_ENV) }.getOrNull()?.let {
-            it.split(",").filter { h -> h.isNotBlank() }
-                .forEach { h -> if (h.startsWith("localhost")) host(h) else host(h, listOf("https")) }
-        }
+        configureHosts()
     }
 
     di {
@@ -52,7 +50,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Authentication) {
-        setupJWT(di())
+        setupJWT(closestDI())
     }
 
     install(StatusPages) {
@@ -62,3 +60,8 @@ fun Application.module(testing: Boolean = false) {
     setupRoutes()
 }
 
+fun CORS.Configuration.configureHosts() =
+    kotlin.runCatching { System.getenv(Constants.ALLOWED_HOSTS_ENV) }.getOrNull()?.let {
+        it.split(",").filter { h -> h.isNotBlank() }
+            .forEach { h -> if (h.startsWith("localhost")) host(h) else host(h, listOf("https")) }
+    }

@@ -1,15 +1,16 @@
 package com.gmail.marcosav2010.db
 
+import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.db.dao.*
 import com.gmail.marcosav2010.model.*
 import com.gmail.marcosav2010.utils.BCryptEncoder
 import com.google.gson.Gson
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.time.Instant
 import java.util.*
 import kotlin.random.Random
@@ -25,7 +26,8 @@ fun SchemaUtils.populate() {
         "sports", // 4
         "games", // 5
         "home", // 6
-        "others" // 7
+        "appliances", // 7
+        "others" // 8
     ).forEachIndexed { i, c -> ProductCategoryEntity.new(i.toLong() + 1) { this.name = c } }
 
     val hPassword = BCryptEncoder.encode("1")
@@ -43,17 +45,16 @@ fun SchemaUtils.populate() {
         )
     )
 
-    /*(1..50L).forEach {
+    (1..10L).forEach {
         UserEntity.add(
-            User(null, "user$it", "S S$it", "u$it@a.a", hPassword, "u$it", "Nice boy n$it", images[0])
+            User(null, "u$it", "S S$it", "u$it@a.a", hPassword, "u$it", "Nice boy n$it", images[0])
         )
-    }*/
+    }
 
     UserRoles.insert {
         it[userId] = user.id.value
         it[role] = Role.ADMIN.id
     }
-
 }
 
 const val DATASET_NAME = "product_dataset"
@@ -62,16 +63,16 @@ fun SchemaUtils.importDatasets() {
     val f = File(DATASET_NAME)
     if (!f.exists()) return
 
+    var count = 0
     val gson = Gson()
 
     Files.newBufferedReader(f.toPath()).use { reader ->
-        println("Importing dataset products, this may took some hours...")
+        println("Importing dataset products, this may took some minutes...")
 
-        var count = 0
         while (reader.ready()) {
             val l = reader.readLine()
 
-            if (count++ % 2500 == 0)
+            if (++count % 2500 == 0)
                 println("Imported $count")
 
             val parsed = gson.fromJson(l, SavedProduct::class.java)
@@ -87,10 +88,12 @@ fun SchemaUtils.importDatasets() {
                 external = true
             )
         }
+
+        println("Imported $count")
     }
 }
 
-/*private val RENAMING_RULES = mapOf(
+private val RENAMING_RULES = mapOf(
     Pair("_SS40_.jpg", "_SS600_.jpg"),
     Pair("_US40_.jpg", "_US600_.jpg"),
     Pair("_SR38,50_.jpg", "_SR450,600_.jpg"),
@@ -106,19 +109,21 @@ data class DatasetProduct(
     val image: List<String>?,
     val brand: String?,
     val category: List<String>?,
-    val feature: List<String>?
+    val feature: List<String>?,
+    val main_cat: String?
 )
 
 fun SchemaUtils.processDatasets() {
     val f = File(DATASET_NAME)
     if (!f.exists()) f.createNewFile()
 
+    var count = 0
     val gson = Gson()
 
     fun parse(category: Long, file: String) =
         Files.newBufferedReader(File("public/${file}").toPath()).use { reader ->
             Files.newBufferedWriter(f.toPath(), StandardOpenOption.APPEND).use { writer ->
-                var count = 0
+
                 while (reader.ready()) {
                     val l = reader.readLine()
                     val parsed = gson.fromJson(l, DatasetProduct::class.java)
@@ -141,19 +146,41 @@ fun SchemaUtils.processDatasets() {
                     if (images.isEmpty())
                         continue
 
-                    val desc = parsed.description[0]
+                    val desc = parsed.description[0].trim().replace("&amp;", "&")
                     if (desc.length > Constants.MAX_PRODUCT_DESC_LENGTH)
                         continue
+                    if (desc.contains("javascript:void(0)")) continue
+
+                    val name = parsed.title.trim().replace("&amp;", "&")
+                    if (name.length > 200)
+                        continue
+                    if (name.contains("javascript:void(0)")) continue
+
+                    val categories =
+                        parsed.category?.map { it.trim().replace("&amp;", "&") }?.filter { it.isNotBlank() }
+                            ?.filter { it.split(" ").size < 5 }
+                            ?.filterNot { it.contains("\"") or it.contains("%") or (it.length < 2) or it.contains("javascript:void(0)") }
+                    if (categories.isNullOrEmpty() && category != 1L) continue
+
+                    val mainCat = parsed.main_cat?.trim()?.replace("Amazon", "")?.trim()?.replace("&amp;", "&")
+                    if (mainCat.isNullOrBlank() && category != 1L) continue
+                    if (mainCat?.startsWith("<") == true) continue
+
+                    val features = parsed.feature?.map { it.trim().replace("&amp;", "&") }
+                        ?.filter { it.isNotBlank() }
+                        ?.filterNot { it.contains("javascript:void(0)") or it.contains("a-size-base") }
+                        ?: emptyList()
 
                     val p = SavedProduct(
-                        parsed.title.trim(),
-                        parsed.brand?.trim() ?: "",
+                        name,
+                        parsed.brand?.trim()?.replace("&amp;", "&") ?: "",
                         price,
                         category,
                         images,
-                        parsed.category?.map { it.trim() } ?: emptyList(),
-                        parsed.feature?.map { it.trim() } ?: emptyList(),
-                        desc.trim()
+                        categories ?: emptyList(),
+                        features,
+                        desc,
+                        mainCat ?: "Fashion"
                     )
 
                     val newLine = gson.toJson(p)
@@ -167,14 +194,14 @@ fun SchemaUtils.processDatasets() {
             }
         }
 
-    /*parse(1L, "rfashion")
-    parse(2L, "rphones")
+    parse(1L, "fashion")
+    parse(2L, "phones")
     parse(3L, "electronics")
-    parse(4L, "rsports")
-    parse(5L, "rgames")
+    parse(4L, "sports")
+    parse(5L, "games")
     parse(6L, "home")
-    parse(7L, "rappliances")*/
-}*/
+    parse(7L, "appliances")
+}
 
 data class SavedProduct(
     val name: String,
@@ -184,7 +211,8 @@ data class SavedProduct(
     val images: List<String>,
     val categories: List<String>,
     val features: List<String>,
-    val description: String
+    val description: String,
+    val mainCat: String
 )
 
 private fun p(

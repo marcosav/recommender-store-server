@@ -8,16 +8,16 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.users() {
 
     route("/user") {
 
-        val userService by di().instance<UserService>()
-        val favoriteService by di().instance<FavoriteService>()
-        val orderService by di().instance<OrderService>()
+        val userService by closestDI().instance<UserService>()
+        val favoriteService by closestDI().instance<FavoriteService>()
+        val orderService by closestDI().instance<OrderService>()
 
         get<UserSearch> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE

@@ -22,17 +22,17 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.product() {
 
     route("/product") {
 
-        val productService by di().instance<ProductService>()
-        val favoriteService by di().instance<FavoriteService>()
-        val productValidator by di().instance<ProductValidator>()
-        val imageValidator by di().instance<ImageValidator>()
+        val productService by closestDI().instance<ProductService>()
+        val favoriteService by closestDI().instance<FavoriteService>()
+        val productValidator by closestDI().instance<ProductValidator>()
+        val imageValidator by closestDI().instance<ImageValidator>()
 
         suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
             success: (Pair<ProductForm, Array<String?>>) -> Product,
@@ -110,7 +110,8 @@ fun Route.product() {
 
         get<ProductSearch> {
             val offset = it.page * Constants.PRODUCTS_PER_PAGE
-            val products = productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset)
+            val products =
+                productService.findByName(it.query, it.category, Constants.PRODUCTS_PER_PAGE, offset, it.order)
             session.userId?.let {
                 products.items.onEach { p -> p.fav = favoriteService.isFavoriteProduct(p.id, it) }
             }
@@ -214,7 +215,7 @@ data class ProductPath(val id: Long) {
 
 @KtorExperimentalLocationsAPI
 @Location("/list")
-data class ProductSearch(val query: String, val page: Int = 0, val category: Long? = null, val order: Int? = null)
+data class ProductSearch(val query: String, val page: Int = 0, val category: Long? = null, val order: Int = 0)
 
 @KtorExperimentalLocationsAPI
 @Location("/vendor/{vendorId}")

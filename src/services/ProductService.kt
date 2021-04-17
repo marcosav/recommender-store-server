@@ -11,8 +11,10 @@ import com.gmail.marcosav2010.model.ProductCategory
 import com.gmail.marcosav2010.utils.dropFrom
 import db.Paged
 import db.paged
+import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.math.abs
 
 class ProductService {
 
@@ -32,14 +34,22 @@ class ProductService {
         ProductCategoryEntity.all().map { it.toCategory() }
     }
 
-    fun findByName(name: String, category: Long?, size: Int, offset: Int): Paged<PreviewProduct> = transaction {
-        ProductEntity.findByName(name.dropFrom(Constants.MAX_PRODUCT_NAME_LENGTH), category).paged(
-            { it.toPreviewProduct() },
-            size,
-            offset,
-            Pair(Products.lastUpdated, SortOrder.DESC)
+    private fun getProductSortingById(order: Int): Pair<Expression<*>, SortOrder> {
+        return Pair(
+            if (abs(order) == 2) Products.price else Products.lastUpdated,
+            if (order > 0) SortOrder.ASC else SortOrder.DESC
         )
     }
+
+    fun findByName(name: String, category: Long?, size: Int, offset: Int, order: Int): Paged<PreviewProduct> =
+        transaction {
+            ProductEntity.findByName(name.dropFrom(Constants.MAX_PRODUCT_NAME_LENGTH), category).paged(
+                { it.toPreviewProduct() },
+                size,
+                offset,
+                getProductSortingById(order)
+            )
+        }
 
     fun findByVendor(userId: Long, shown: Boolean, size: Int, offset: Int): Paged<PreviewProduct> = transaction {
         ProductEntity.findByVendor(userId, shown).paged(

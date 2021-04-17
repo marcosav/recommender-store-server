@@ -11,18 +11,18 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.cart() {
 
     route("/cart") {
 
-        val cartService by di().instance<CartService>()
-        val productService by di().instance<ProductService>()
-        val favoriteService by di().instance<FavoriteService>()
+        val cartService by closestDI().instance<CartService>()
+        val productService by closestDI().instance<ProductService>()
+        val favoriteService by closestDI().instance<FavoriteService>()
 
-        val cartUpdateValidator by di().instance<CartUpdateValidator>()
+        val cartUpdateValidator by closestDI().instance<CartUpdateValidator>()
 
         get {
             val cart = cartService.getCurrentCart(session).onEach {

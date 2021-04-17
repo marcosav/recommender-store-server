@@ -21,17 +21,17 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.signup() {
 
-    val userService by di().instance<UserService>()
-    val authenticationService by di().instance<AuthenticationService>()
+    val userService by closestDI().instance<UserService>()
+    val authenticationService by closestDI().instance<AuthenticationService>()
 
-    val userRegisterFormValidator by di().instance<UserRegisterFormValidator>()
-    val userEditFormValidator by di().instance<UserEditFormValidator>()
-    val imageValidator by di().instance<ImageValidator>()
+    val userRegisterFormValidator by closestDI().instance<UserRegisterFormValidator>()
+    val userEditFormValidator by closestDI().instance<UserEditFormValidator>()
+    val imageValidator by closestDI().instance<ImageValidator>()
 
     suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
         validator: Validator<UserForm>,

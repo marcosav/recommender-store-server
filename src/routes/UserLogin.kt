@@ -13,15 +13,15 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.login() {
 
-    val authenticationService by di().instance<AuthenticationService>()
-    val userService by di().instance<UserService>()
-    val roleService by di().instance<RoleService>()
-    val cartService by di().instance<CartService>()
+    val authenticationService by closestDI().instance<AuthenticationService>()
+    val userService by closestDI().instance<UserService>()
+    val roleService by closestDI().instance<RoleService>()
+    val cartService by closestDI().instance<CartService>()
 
     post<Login> {
         session.userId?.let { return@post call.respond(HttpStatusCode.NoContent) }

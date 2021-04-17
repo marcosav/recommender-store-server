@@ -23,6 +23,7 @@ fun Application.setupRoutes() {
                     }
                 }
 
+                reauth()
                 login()
                 signup()
                 users()

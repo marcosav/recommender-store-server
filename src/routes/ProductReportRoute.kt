@@ -6,14 +6,11 @@ import com.gmail.marcosav2010.services.*
 import com.gmail.marcosav2010.validators.ProductReportValidator
 import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.locations.*
-import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.pipeline.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 import kotlin.properties.Delegates
 
 @KtorExperimentalLocationsAPI
@@ -21,9 +18,9 @@ fun Route.productReports() {
 
     route("/product/report") {
 
-        val productService by di().instance<ProductService>()
-        val productReportService by di().instance<ProductReportService>()
-        val productReportValidator by di().instance<ProductReportValidator>()
+        val productService by closestDI().instance<ProductService>()
+        val productReportService by closestDI().instance<ProductReportService>()
+        val productReportValidator by closestDI().instance<ProductReportValidator>()
 
         post<ProductReportForm> {
             assertIdentified()

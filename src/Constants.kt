@@ -43,7 +43,7 @@ object Constants {
     const val MAX_ADDRESS_PHONE_LENGTH = 32
 
     const val MIN_PRODUCT_NAME_LENGTH = 5
-    const val MAX_PRODUCT_NAME_LENGTH = 50
+    const val MAX_PRODUCT_NAME_LENGTH = 70
     const val MIN_PRODUCT_BRAND_LENGTH = 1
     const val MAX_PRODUCT_BRAND_LENGTH = 20
     const val MAX_PRODUCT_DESC_LENGTH = 3000
@@ -54,9 +54,6 @@ object Constants {
 
     const val MIN_PRODUCT_REPORT_DESC_LENGTH = 20
     const val MAX_PRODUCT_REPORT_DESC_LENGTH = 300
-
-    /*  */
-    const val CART_MAX_AMOUNT = 80
 
     /*  */
     const val PRODUCTS_PER_PAGE = 25

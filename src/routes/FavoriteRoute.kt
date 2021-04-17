@@ -8,17 +8,17 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.kodein.di.ktor.closestDI
 
 @KtorExperimentalLocationsAPI
 fun Route.favorites() {
 
     route("/favorites") {
 
-        val favoriteService by di().instance<FavoriteService>()
+        val favoriteService by closestDI().instance<FavoriteService>()
 
         route("/products") {
-            val productService by di().instance<ProductService>()
+            val productService by closestDI().instance<ProductService>()
 
             get<FavoriteList> {
                 assertIdentified()
@@ -57,7 +57,7 @@ fun Route.favorites() {
         }
 
         route("/vendors") {
-            val userService by di().instance<UserService>()
+            val userService by closestDI().instance<UserService>()
 
             get<FavoriteList> {
                 assertIdentified()

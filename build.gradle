@@ -55,9 +55,9 @@ dependencies {
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-java-time:$exposed_version"
 
-    implementation "org.kodein.di:kodein-di-framework-ktor-server-jvm:7.3.1"
-    implementation "org.postgresql:postgresql:42.2.19"
-    implementation "com.zaxxer:HikariCP:4.0.2"
+    implementation "org.kodein.di:kodein-di-framework-ktor-server-jvm:$kodein_version"
+    implementation "org.postgresql:postgresql:$postgresql_version"
+    implementation "com.zaxxer:HikariCP:$hikari_version"
 
     implementation 'at.favre.lib:bcrypt:0.9.0'
 
