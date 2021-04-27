@@ -42,7 +42,8 @@ private fun createTables() = transaction {
         UserRoles,
         ProductImages,
         Orders,
-        OrderedProducts
+        OrderedProducts,
+        ProductStatsTable
     )
 
     if (System.getenv(Constants.POPULATE) == "yes") {

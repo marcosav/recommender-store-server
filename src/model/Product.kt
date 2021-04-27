@@ -14,8 +14,8 @@ data class Product(
     var images: List<ProductImage> = emptyList(),
     val lastUpdated: Instant? = null,
     val date: Instant? = null,
-    val visits: Int? = null,
-    val rating: Double? = null,
+    var visits: Long? = null,
+    var rating: Double? = null,
     var userId: Long? = null,
     var vendorNick: String? = null,
     var fav: Boolean? = null
@@ -29,8 +29,8 @@ data class PreviewProduct(
     val stock: Int,
     val mainImage: String?,
     val lastUpdated: Instant? = null,
-    val visits: Int? = null,
-    val rating: Double? = null,
+    var visits: Int? = null,
+    var rating: Double? = null,
     var fav: Boolean? = null
 ) {
     fun asDeleted() = PreviewProduct(

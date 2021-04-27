@@ -35,4 +35,8 @@ class OrderService {
 
     fun findLastAddressesForUser(userId: Long) =
         transaction { OrderEntity.findLastAddressesForUser(userId, 4).map { it.toAddress() } }
+
+    fun hasBought(userId: Long, productId: Long): Boolean = transaction {
+        !OrderEntity.findByUserAndProduct(userId, productId).empty()
+    }
 }

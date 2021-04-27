@@ -1,5 +1,6 @@
 package com.gmail.marcosav2010
 
+import com.gmail.marcosav2010.api.setupAPIs
 import com.gmail.marcosav2010.db.setupDB
 import com.gmail.marcosav2010.routes.setupExceptionHandler
 import com.gmail.marcosav2010.routes.setupRoutes
@@ -14,12 +15,8 @@ import io.ktor.http.*
 import io.ktor.locations.*
 import org.kodein.di.ktor.closestDI
 import org.kodein.di.ktor.di
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
-
-private val logger: Logger = LoggerFactory.getLogger("Application")
 
 @KtorExperimentalLocationsAPI
 @Suppress("unused")
@@ -39,12 +36,12 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Delete)
 
         header(HttpHeaders.Authorization)
-        allowCredentials = true
 
         configureHosts()
     }
 
     di {
+        setupAPIs()
         setupServices()
         setupValidators()
     }

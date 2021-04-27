@@ -14,12 +14,16 @@ object Constants {
     const val DATABASE_PASSWORD = "DATABASE_PASSWORD"
     const val POPULATE = "POPULATE"
 
+    const val RECOMMENDER_SERVER = "RECOMMENDER_SERVER"
+
     /* */
     const val DEFAULT_PUBLIC_PATH = "public"
     const val DEFAULT_IMG_PATH = "img"
 
     /*  */
     const val API_VERSION = 1
+
+    const val RECOMMENDER_API_VERSION = 1
 
     /*  */
     const val MAX_EMAIL_LENGTH = 256

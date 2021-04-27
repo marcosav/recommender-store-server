@@ -9,9 +9,12 @@ fun DI.MainBuilder.setupServices() {
     bind<AuthenticationService>() with singleton { AuthenticationService() }
     bind<UserService>() with singleton { UserService(di) }
     bind<RoleService>() with singleton { RoleService() }
-    bind<ProductService>() with singleton { ProductService() }
+    bind<ProductService>() with singleton { ProductService(di) }
     bind<CartService>() with singleton { CartService(di) }
     bind<FavoriteService>() with singleton { FavoriteService() }
     bind<ProductReportService>() with singleton { ProductReportService() }
     bind<OrderService>() with singleton { OrderService() }
+    bind<ProductStatsService>() with singleton { ProductStatsService(di) }
+    bind<CollectorService>() with singleton { CollectorService(di) }
+    bind<RecommenderService>() with singleton { RecommenderService(di) }
 }

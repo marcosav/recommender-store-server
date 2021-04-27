@@ -4,12 +4,10 @@ import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
 import com.gmail.marcosav2010.model.ProductImage
-import com.gmail.marcosav2010.services.FavoriteService
-import com.gmail.marcosav2010.services.ProductService
-import com.gmail.marcosav2010.services.assertIdentified
-import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.services.*
 import com.gmail.marcosav2010.utils.ImageHandler
 import com.gmail.marcosav2010.utils.OversizeImageException
+import com.gmail.marcosav2010.utils.step
 import com.gmail.marcosav2010.validators.ImageValidator
 import com.gmail.marcosav2010.validators.ProductValidator
 import com.google.gson.Gson
@@ -30,6 +28,7 @@ fun Route.product() {
     route("/product") {
 
         val productService by closestDI().instance<ProductService>()
+        val orderService by closestDI().instance<OrderService>()
         val favoriteService by closestDI().instance<FavoriteService>()
         val productValidator by closestDI().instance<ProductValidator>()
         val imageValidator by closestDI().instance<ImageValidator>()
@@ -146,6 +145,17 @@ fun Route.product() {
             }
         }
 
+        put<ProductPath.Rate> {
+            assertIdentified()
+
+            if (!orderService.hasBought(session.userId!!, it.base.id)) throw BadRequestException()
+            if (!(0.5..5.0).step(0.5).contains(it.rating)) throw BadRequestException()
+
+            productService.addRating(session, it.base.id, it.rating)
+
+            call.respond(HttpStatusCode.OK)
+        }
+
         delete<ProductPath.Delete> {
             assertIdentified()
 
@@ -211,6 +221,9 @@ data class ProductPath(val id: Long) {
     data class Details(val base: ProductPath)
 
     data class Delete(val base: ProductPath)
+
+    @Location("/rate")
+    data class Rate(val base: ProductPath, val rating: Double)
 }
 
 @KtorExperimentalLocationsAPI

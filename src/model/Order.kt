@@ -13,5 +13,6 @@ data class Order(
 data class OrderedProduct(
     val amount: Int,
     val unitPrice: Double,
-    val product: PreviewProduct
+    val product: PreviewProduct,
+    var userRating: Double? = null
 )

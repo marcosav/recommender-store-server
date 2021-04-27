@@ -7,7 +7,9 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.mapLazy
+import org.jetbrains.exposed.sql.select
 import java.time.Instant
 
 object Orders : LongIdTable() {
@@ -31,6 +33,12 @@ class OrderEntity(id: EntityID<Long>) : LongEntity(id) {
         fun findLastAddressesForUser(userId: Long, limit: Int) =
             find { Orders.user eq userId }.orderBy(Pair(Orders.date, SortOrder.DESC)).limit(limit)
                 .mapLazy { it.address }
+
+        fun findByUserAndProduct(userId: Long, productId: Long) =
+            OrderedProductEntity.find {
+                (OrderedProducts.product eq productId) and (OrderedProducts.order inSubQuery Orders.select { Orders.user eq userId }
+                    .adjustSlice { source.slice(Orders.id) })
+            }
     }
 
     var date by Orders.date

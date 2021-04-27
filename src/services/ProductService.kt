@@ -8,18 +8,28 @@ import com.gmail.marcosav2010.db.dao.Products
 import com.gmail.marcosav2010.model.PreviewProduct
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
+import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.utils.dropFrom
 import db.Paged
 import db.paged
 import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.kodein.di.DI
+import org.kodein.di.instance
 import kotlin.math.abs
 
-class ProductService {
+class ProductService(di: DI) {
+
+    private val productStatsService by di.instance<ProductStatsService>()
+    private val collectorService by di.instance<CollectorService>()
 
     fun findById(id: Long): Product? = transaction {
-        ProductEntity.findByIdNotDeleted(id)?.toProduct()
+        val stats = productStatsService.getForProduct(id)
+        ProductEntity.findByIdNotDeleted(id)?.toProduct()?.also {
+            it.visits = stats.visits
+            it.rating = stats.rating
+        }
     }
 
     fun findByIdPreview(id: Long): PreviewProduct? = transaction {
@@ -89,5 +99,9 @@ class ProductService {
 
     fun deleteForUser(id: Long): Unit = transaction {
         ProductEntity.deleteForUser(id)
+    }
+
+    fun addRating(session: Session, productId: Long, rating: Double): Unit = transaction {
+        collectorService.collect(session, productId, ActionType.RATING, rating)
     }
 }

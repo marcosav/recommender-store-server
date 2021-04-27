@@ -8,12 +8,12 @@ import io.ktor.http.content.*
 import io.ktor.locations.*
 import io.ktor.routing.*
 
-const val API_ROUTE = "/v${Constants.API_VERSION}"
+const val BASE_ROUTE = "/v${Constants.API_VERSION}"
 
 @KtorExperimentalLocationsAPI
 fun Application.setupRoutes() {
     routing {
-        route(API_ROUTE) {
+        route(BASE_ROUTE) {
             auth()
 
             authenticate {
@@ -33,6 +33,7 @@ fun Application.setupRoutes() {
                 favorites()
                 checkout()
                 orders()
+                recommended()
             }
         }
     }

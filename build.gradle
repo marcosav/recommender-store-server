@@ -2,16 +2,13 @@ buildscript {
     repositories {
         jcenter()
     }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
-    }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'kotlin'
-apply plugin: 'application'
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'application'
+}
 
 group 'com.gmail.marcosav2010'
 version '0.1'
@@ -58,6 +55,9 @@ dependencies {
     implementation "org.kodein.di:kodein-di-framework-ktor-server-jvm:$kodein_version"
     implementation "org.postgresql:postgresql:$postgresql_version"
     implementation "com.zaxxer:HikariCP:$hikari_version"
+
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     implementation 'at.favre.lib:bcrypt:0.9.0'
 
