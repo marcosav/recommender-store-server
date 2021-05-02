@@ -13,13 +13,13 @@ import org.kodein.di.ktor.closestDI
 @KtorExperimentalLocationsAPI
 fun Route.favorites() {
 
+    val favoriteService by closestDI().instance<FavoriteService>()
+    val collectorService by closestDI().instance<CollectorService>()
+    val productService by closestDI().instance<ProductService>()
+    val userService by closestDI().instance<UserService>()
+
     route("/favorites") {
-
-        val favoriteService by closestDI().instance<FavoriteService>()
-
         route("/products") {
-            val productService by closestDI().instance<ProductService>()
-
             get<FavoriteList> {
                 assertIdentified()
 
@@ -45,6 +45,8 @@ fun Route.favorites() {
                     throw NotFoundException()
 
                 favoriteService.addProduct(it.id, userId)
+                collectorService.collectFavorite(session, it.id)
+
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -57,8 +59,6 @@ fun Route.favorites() {
         }
 
         route("/vendors") {
-            val userService by closestDI().instance<UserService>()
-
             get<FavoriteList> {
                 assertIdentified()
 

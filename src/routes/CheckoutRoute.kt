@@ -3,11 +3,8 @@ package com.gmail.marcosav2010.routes
 import com.gmail.marcosav2010.model.Address
 import com.gmail.marcosav2010.model.CartProduct
 import com.gmail.marcosav2010.model.Product
-import com.gmail.marcosav2010.services.OrderService
-import com.gmail.marcosav2010.services.ProductService
-import com.gmail.marcosav2010.services.assertIdentified
+import com.gmail.marcosav2010.services.*
 import com.gmail.marcosav2010.services.cart.CartService
-import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.UserAddressValidator
 import io.ktor.application.*
 import io.ktor.locations.*
@@ -23,6 +20,7 @@ fun Route.checkout() {
     val addressValidator by closestDI().instance<UserAddressValidator>()
     val productService by closestDI().instance<ProductService>()
     val orderService by closestDI().instance<OrderService>()
+    val collectorService by closestDI().instance<CollectorService>()
 
     route("/checkout") {
         post<Address> {
@@ -52,6 +50,8 @@ fun Route.checkout() {
             val token = cartService.clear(session)
 
             val orderId = orderService.create(session.userId!!, it, products)
+
+            collectorService.collectBuy(session, products.map { p -> p.key.id!! })
 
             call.respond(mapOf("orderId" to orderId, "token" to token))
         }

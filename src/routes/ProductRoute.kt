@@ -25,13 +25,13 @@ import org.kodein.di.ktor.closestDI
 @KtorExperimentalLocationsAPI
 fun Route.product() {
 
-    route("/product") {
+    val productService by closestDI().instance<ProductService>()
+    val orderService by closestDI().instance<OrderService>()
+    val favoriteService by closestDI().instance<FavoriteService>()
+    val productValidator by closestDI().instance<ProductValidator>()
+    val imageValidator by closestDI().instance<ImageValidator>()
 
-        val productService by closestDI().instance<ProductService>()
-        val orderService by closestDI().instance<OrderService>()
-        val favoriteService by closestDI().instance<FavoriteService>()
-        val productValidator by closestDI().instance<ProductValidator>()
-        val imageValidator by closestDI().instance<ImageValidator>()
+    route("/product") {
 
         suspend fun PipelineContext<Unit, ApplicationCall>.handleMultipart(
             success: (Pair<ProductForm, Array<String?>>) -> Product,

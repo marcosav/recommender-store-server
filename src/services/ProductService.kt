@@ -102,6 +102,6 @@ class ProductService(di: DI) {
     }
 
     fun addRating(session: Session, productId: Long, rating: Double): Unit = transaction {
-        collectorService.collect(session, productId, ActionType.RATING, rating)
+        collectorService.collectRating(session, productId, rating)
     }
 }

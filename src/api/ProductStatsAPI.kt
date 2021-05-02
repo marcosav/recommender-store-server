@@ -7,5 +7,5 @@ import retrofit2.http.Query
 interface ProductStatsAPI {
 
     @GET("stats")
-    suspend fun getStats(@Query("product") product: Long): ProductStats
+    suspend fun getStats(@Query("item") item: Long): ProductStats
 }

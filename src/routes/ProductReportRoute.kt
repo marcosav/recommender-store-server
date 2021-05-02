@@ -16,11 +16,11 @@ import kotlin.properties.Delegates
 @KtorExperimentalLocationsAPI
 fun Route.productReports() {
 
-    route("/product/report") {
+    val productService by closestDI().instance<ProductService>()
+    val productReportService by closestDI().instance<ProductReportService>()
+    val productReportValidator by closestDI().instance<ProductReportValidator>()
 
-        val productService by closestDI().instance<ProductService>()
-        val productReportService by closestDI().instance<ProductReportService>()
-        val productReportValidator by closestDI().instance<ProductReportValidator>()
+    route("/product/report") {
 
         post<ProductReportForm> {
             assertIdentified()

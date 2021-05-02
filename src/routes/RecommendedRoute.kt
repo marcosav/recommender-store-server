@@ -14,9 +14,24 @@ fun Route.recommended() {
 
     val recommenderService by closestDI().instance<RecommenderService>()
 
-    get("/recommended") {
-        // TODO: User
-        val products = recommenderService.getFor(session.userId ?: 1)
+    get<RecommendedRoute> {
+        val user = session.userId
+
+        val products = when {
+            it.product != null -> recommenderService.getFor(product = it.product)
+            user != null -> recommenderService.getFor(user = user)
+            else -> throw BadRequestException()
+        }
+
+        call.respond(products)
+    }
+
+    get("/popular") {
+        val products = recommenderService.getPopular()
         call.respond(products)
     }
 }
+
+@KtorExperimentalLocationsAPI
+@Location("/recommended")
+data class RecommendedRoute(val product: Long? = null)

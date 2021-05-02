@@ -11,8 +11,14 @@ class RecommenderService(di: DI) {
     private val recommender by di.instance<RecommenderAPI>()
     private val productService by di.instance<ProductService>()
 
-    fun getFor(user: Long, product: Long? = null): List<PreviewProduct> = runBlocking {
-        val products = recommender.getRecommendedFor(user, product)
+    fun getFor(user: Long? = null, product: Long? = null): List<PreviewProduct> = runBlocking {
+        val products = recommender.getRecommendedFrom(user, product)
+
+        products.mapNotNull { productService.findByIdPreview(it) }
+    }
+
+    fun getPopular(weekly: Boolean = true): List<PreviewProduct> = runBlocking {
+        val products = recommender.getPopular(if (weekly) 0 else 1, 12)
 
         products.mapNotNull { productService.findByIdPreview(it) }
     }

@@ -29,10 +29,9 @@ class LoggedCartService : ICartService {
 
     fun mergeCarts(userId: Long, oldCart: SessionCart): SessionCart = transaction {
         val userCart = findByUser(userId)
-        if (userCart.isEmpty()) {
+        userCart.ifEmpty {
             oldCart.onEach { it.id.let { id -> CartProductEntity.add(userId, id, it.amount) } }
-        } else
-            userCart
+        }
     }
 
     override fun remove(session: Session, productId: Long): SessionCart = transaction {

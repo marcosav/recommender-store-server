@@ -10,14 +10,28 @@ class CollectorService(di: DI) {
 
     private val collector by di.instance<CollectorAPI>()
 
-    fun collect(session: Session, item: Long, action: ActionType, value: Double? = null) = runBlocking {
+    fun collectRating(session: Session, item: Long, value: Double) = runBlocking {
         collector.collect(
-            session.sessionId,
-            session.userId!!,
-            item,
-            action.id,
-            value
+            session.sessionId, session.userId!!, item, ActionType.RATING.id, value
         )
+    }
+
+    fun collectCart(session: Session, item: Long) = runBlocking {
+        collector.collect(
+            session.sessionId, session.userId!!, item, ActionType.CART.id,
+        )
+    }
+
+    fun collectFavorite(session: Session, item: Long) = runBlocking {
+        collector.collect(
+            session.sessionId, session.userId!!, item, ActionType.FAVORITE.id,
+        )
+    }
+
+    fun collectBuy(session: Session, item: List<Long>) = runBlocking {
+        item.forEach {
+            collector.collect(session.sessionId, session.userId!!, it, ActionType.BUY.id)
+        }
     }
 }
 
