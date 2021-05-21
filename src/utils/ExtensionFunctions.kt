@@ -15,3 +15,18 @@ infix fun ClosedRange<Double>.step(step: Double): Iterable<Double> {
 
     return sequence.asIterable()
 }
+
+inline fun <R> runSilent(default: R, block: () -> R): R =
+    runCatching { block() }.onFailure {
+        if (it.message?.startsWith("Failed to connect") != true) it.printStackTrace(
+            System.err
+        )
+    }.getOrDefault(default)
+
+inline fun <R> runSilent(block: () -> R) {
+    runCatching { block() }.onFailure {
+        if (it.message?.startsWith("Failed to connect") != true) it.printStackTrace(
+            System.err
+        )
+    }
+}

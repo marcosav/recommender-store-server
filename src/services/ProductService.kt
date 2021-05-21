@@ -101,7 +101,6 @@ class ProductService(di: DI) {
         ProductEntity.deleteForUser(id)
     }
 
-    fun addRating(session: Session, productId: Long, rating: Double): Unit = transaction {
+    suspend fun addRating(session: Session, productId: Long, rating: Double): Unit =
         collectorService.collectRating(session, productId, rating)
-    }
 }

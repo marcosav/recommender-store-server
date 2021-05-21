@@ -8,7 +8,8 @@ interface RecommenderAPI {
     @GET("recommended")
     suspend fun getRecommendedFrom(
         @Query("user") user: Long? = null,
-        @Query("item") item: Long? = null
+        @Query("item") item: Long? = null,
+        @Query("amount") amount: Long? = null
     ): List<Long>
 
     @GET("popular")

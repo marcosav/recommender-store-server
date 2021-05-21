@@ -6,6 +6,7 @@ import com.gmail.marcosav2010.services.OrderService
 import com.gmail.marcosav2010.services.UserService
 import com.gmail.marcosav2010.services.assertIdentified
 import com.gmail.marcosav2010.services.session
+import com.gmail.marcosav2010.utils.runSilent
 import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.response.*
@@ -33,10 +34,12 @@ fun Route.orders() {
         val offset = it.page * Constants.ORDERS_PER_PAGE
         val orders = orderService.findByUser(userId, Constants.ORDERS_PER_PAGE, offset)
 
-        val ratings = userActionsAPI.getRatingFor(
-            currentUser,
-            orders.items.flatMap { o -> o.items }.map { op -> op.product.id }.toSet()
-        )
+        val ratings = runSilent(emptyMap()) {
+            userActionsAPI.getRatingFor(
+                currentUser,
+                orders.items.flatMap { o -> o.items }.map { op -> op.product.id }.toSet()
+            )
+        }
 
         orders.items.forEach { o -> o.items.forEach { op -> op.userRating = ratings[op.product.id] } }
 

@@ -4,13 +4,12 @@ import com.gmail.marcosav2010.Constants
 import com.gmail.marcosav2010.db.dao.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.application.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-fun Application.setupDB() {
+fun setupDB() {
     val props = Properties()
 
     props.set("dataSourceClassName", Constants.DATABASE_SOURCE)
@@ -49,7 +48,6 @@ private fun createTables() = transaction {
     if (System.getenv(Constants.POPULATE) == "yes") {
         SchemaUtils.populate()
         commit()
-        //SchemaUtils.processDatasets()
         SchemaUtils.importDatasets()
     }
 }

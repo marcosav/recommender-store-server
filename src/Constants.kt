@@ -2,7 +2,7 @@ package com.gmail.marcosav2010
 
 object Constants {
 
-    /*  */
+    /* Environment vars */
     const val PUBLIC_PATH_ENV = "PUBLIC_PATH"
     const val IMG_PATH_ENV = "IMG_PATH"
     const val JWT_SECRET_ENV = "JWT_SECRET"
@@ -16,16 +16,16 @@ object Constants {
 
     const val RECOMMENDER_SERVER = "RECOMMENDER_SERVER"
 
-    /* */
+    /* Static routes */
     const val DEFAULT_PUBLIC_PATH = "public"
     const val DEFAULT_IMG_PATH = "img"
 
-    /*  */
+    /* API Versions */
     const val API_VERSION = 1
 
     const val RECOMMENDER_API_VERSION = 1
 
-    /*  */
+    /* Input validation restrictions */
     const val MAX_EMAIL_LENGTH = 256
     const val MAX_NICKNAME_LENGTH = 20
     const val MIN_NICKNAME_LENGTH = 3
@@ -59,12 +59,12 @@ object Constants {
     const val MIN_PRODUCT_REPORT_DESC_LENGTH = 20
     const val MAX_PRODUCT_REPORT_DESC_LENGTH = 300
 
-    /*  */
+    /* Paged items amount */
     const val PRODUCTS_PER_PAGE = 25
     const val REPORTS_PER_PAGE = 25
     const val ORDERS_PER_PAGE = 10
 
-    /* */
+    /* Session claims & related */
     const val SESSION_DURATION = 7 * 24 * 3600L
     const val USER_ID_CLAIM = "uid"
     const val USERNAME_CLAIM = "username"
