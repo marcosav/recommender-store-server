@@ -18,8 +18,8 @@ fun Route.recommended() {
         val user = session.userId
 
         val products = when {
-            it.product != null -> recommenderService.getFor(product = it.product)
-            user != null -> recommenderService.getFor(user = user)
+            it.product != null -> recommenderService.getForProduct(it.product)
+            user != null -> recommenderService.getForUser(user)
             else -> throw BadRequestException()
         }
 

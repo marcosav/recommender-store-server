@@ -16,6 +16,9 @@ object Constants {
 
     const val RECOMMENDER_SERVER = "RECOMMENDER_SERVER"
 
+    const val ENGINE_API_AUTH_PASSWORD = "ENGINE_API_AUTH_PASSWORD"
+    const val ENGINE_API_AUTH_USER = "ENGINE_API_AUTH_USER"
+
     /* Static routes */
     const val DEFAULT_PUBLIC_PATH = "public"
     const val DEFAULT_IMG_PATH = "img"

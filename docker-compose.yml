@@ -11,8 +11,8 @@ services:
       - "8080:80"
     env_file:
       - backend.env
-#    volumes:
-#    - ./product_dataset:/app/product_dataset
+    volumes:
+      - ./product_dataset:/app/product_dataset
   postgres:
     restart: always
     image: postgres:alpine

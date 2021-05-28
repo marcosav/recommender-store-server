@@ -8,7 +8,6 @@ import com.gmail.marcosav2010.db.dao.Products
 import com.gmail.marcosav2010.model.PreviewProduct
 import com.gmail.marcosav2010.model.Product
 import com.gmail.marcosav2010.model.ProductCategory
-import com.gmail.marcosav2010.model.Session
 import com.gmail.marcosav2010.utils.dropFrom
 import db.Paged
 import db.paged
@@ -18,17 +17,21 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.kodein.di.DI
 import org.kodein.di.instance
 import kotlin.math.abs
+import kotlin.math.min
+import kotlin.random.Random
 
 class ProductService(di: DI) {
 
     private val productStatsService by di.instance<ProductStatsService>()
-    private val collectorService by di.instance<CollectorService>()
 
-    fun findById(id: Long): Product? = transaction {
-        val stats = productStatsService.getForProduct(id)
+    fun findById(id: Long, loadStats: Boolean = false): Product? = transaction {
         ProductEntity.findByIdNotDeleted(id)?.toProduct()?.also {
-            it.visits = stats.visits
-            it.rating = stats.rating
+            if (loadStats) {
+                val stats = productStatsService.getForProduct(id)
+
+                it.visits = stats.visits
+                it.rating = stats.rating
+            }
         }
     }
 
@@ -42,6 +45,14 @@ class ProductService(di: DI) {
 
     fun getCategories() = transaction {
         ProductCategoryEntity.all().map { it.toCategory() }
+    }
+
+    fun findRandomByCategory(category: Long, maxAmount: Long): List<PreviewProduct> = transaction {
+        val query = ProductEntity.findByCategory(category)
+        val count = query.count()
+        val amount = min(count, maxAmount)
+        val offset = kotlin.runCatching { Random.nextLong(0, count - amount) }.getOrNull() ?: 0
+        query.limit(amount.toInt(), offset).map { it.toPreviewProduct() }
     }
 
     private fun getProductSortingById(order: Int): Pair<Expression<*>, SortOrder> {
@@ -100,7 +111,4 @@ class ProductService(di: DI) {
     fun deleteForUser(id: Long): Unit = transaction {
         ProductEntity.deleteForUser(id)
     }
-
-    suspend fun addRating(session: Session, productId: Long, rating: Double): Unit =
-        collectorService.collectRating(session, productId, rating)
 }

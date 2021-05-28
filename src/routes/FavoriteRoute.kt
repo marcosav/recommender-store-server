@@ -14,7 +14,7 @@ import org.kodein.di.ktor.closestDI
 fun Route.favorites() {
 
     val favoriteService by closestDI().instance<FavoriteService>()
-    val collectorService by closestDI().instance<CollectorService>()
+    val collectorService by closestDI().instance<FeedbackService>()
     val productService by closestDI().instance<ProductService>()
     val userService by closestDI().instance<UserService>()
 

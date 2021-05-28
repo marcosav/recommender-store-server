@@ -87,6 +87,9 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
             category?.let { cond = cond.and(Products.category eq category) }
             cond
         }
+
+        fun findByCategory(categoryId: Long) =
+            find { (Products.category eq categoryId) and not(Products.deleted) and not(Products.hidden) }
     }
 
     var name by Products.name

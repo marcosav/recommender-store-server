@@ -1,7 +1,7 @@
 package com.gmail.marcosav2010.routes
 
 import com.gmail.marcosav2010.model.Product
-import com.gmail.marcosav2010.services.CollectorService
+import com.gmail.marcosav2010.services.FeedbackService
 import com.gmail.marcosav2010.services.FavoriteService
 import com.gmail.marcosav2010.services.ProductService
 import com.gmail.marcosav2010.services.cart.CartService
@@ -22,7 +22,7 @@ fun Route.cart() {
         val cartService by closestDI().instance<CartService>()
         val productService by closestDI().instance<ProductService>()
         val favoriteService by closestDI().instance<FavoriteService>()
-        val collectorService by closestDI().instance<CollectorService>()
+        val collectorService by closestDI().instance<FeedbackService>()
 
         val cartUpdateValidator by closestDI().instance<CartUpdateValidator>()
 

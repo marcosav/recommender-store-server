@@ -14,22 +14,20 @@ class ProductStatsService(di: DI) {
 
     private val productStats by di.instance<ProductStatsAPI>()
 
-    fun getForProduct(productId: Long): ProductStats = transaction {
-        runBlocking {
-            runSilent(ProductStats(0, .0, productId)) {
-                var stats = ProductStatsEntity.findByProduct(productId)?.toStats()
-                val new = stats == null
-                val updated = stats?.date?.plusSeconds(VALID_TIME)?.compareTo(Instant.now()) ?: 0
+    fun getForProduct(productId: Long): ProductStats = runBlocking {
+        runSilent(ProductStats(0, .0, productId)) {
+            var stats = ProductStatsEntity.findByProduct(productId)?.toStats()
+            val new = stats == null
+            val updated = stats?.date?.plusSeconds(VALID_TIME)?.compareTo(Instant.now()) ?: 0
 
-                if (new || updated < 0) {
-                    val last = productStats.getStats(productId)
-                    stats = ProductStats(last.visits, last.rating, productId)
+            if (new || updated < 0) {
+                val last = productStats.getStats(productId)
+                stats = ProductStats(last.visits, last.rating, productId)
 
-                    if (new) ProductStatsEntity.add(stats) else ProductStatsEntity.update(stats)
-                }
-
-                stats!!
+                if (new) ProductStatsEntity.add(stats) else ProductStatsEntity.update(stats)
             }
+
+            stats!!
         }
     }
 

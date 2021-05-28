@@ -12,19 +12,23 @@ class RecommenderService(di: DI) {
     private val recommender by di.instance<RecommenderAPI>()
     private val productService by di.instance<ProductService>()
 
-    fun getFor(user: Long? = null, product: Long? = null): List<PreviewProduct> = runBlocking {
-        runSilent(emptyList()) {
-            val products = recommender.getRecommendedFrom(user, product, 12)
-
-            products.mapNotNull { productService.findByIdPreview(it) }
-        }
+    suspend fun getForProduct(product: Long): List<PreviewProduct> = runSilent(emptyList()) {
+        recommender.getRecommendedFrom(null, product, 12)
+            .mapNotNull { productService.findByIdPreview(it) }
+            .ifEmpty { randomFromCategory(product) }
     }
 
-    fun getPopular(weekly: Boolean = true): List<PreviewProduct> = runBlocking {
-        runSilent(emptyList()) {
-            val products = recommender.getPopular(if (weekly) 0 else 1, 12)
+    suspend fun getForUser(user: Long): List<PreviewProduct> = runSilent(emptyList()) {
+        recommender.getRecommendedFrom(user, null, 12)
+            .mapNotNull { productService.findByIdPreview(it) }
+    }
 
-            products.mapNotNull { productService.findByIdPreview(it) }
-        }
+    suspend fun getPopular(weekly: Boolean = true): List<PreviewProduct> = runSilent(emptyList()) {
+        recommender.getPopular(if (weekly) 0 else 1, 12).mapNotNull { productService.findByIdPreview(it) }
+    }
+
+    private fun randomFromCategory(product: Long): List<PreviewProduct> {
+        val category = productService.findById(product)!!.category.id
+        return productService.findRandomByCategory(category, 12)
     }
 }

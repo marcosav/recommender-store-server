@@ -28,6 +28,8 @@ fun Route.product() {
     val productService by closestDI().instance<ProductService>()
     val orderService by closestDI().instance<OrderService>()
     val favoriteService by closestDI().instance<FavoriteService>()
+    val collectorService by closestDI().instance<FeedbackService>()
+
     val productValidator by closestDI().instance<ProductValidator>()
     val imageValidator by closestDI().instance<ImageValidator>()
 
@@ -151,7 +153,7 @@ fun Route.product() {
             if (!orderService.hasBought(session.userId!!, it.base.id)) throw BadRequestException()
             if (!(0.5..5.0).step(0.5).contains(it.rating)) throw BadRequestException()
 
-            productService.addRating(session, it.base.id, it.rating)
+            collectorService.collectRating(session, it.base.id, it.rating)
 
             call.respond(HttpStatusCode.OK)
         }
@@ -170,7 +172,7 @@ fun Route.product() {
         }
 
         get<ProductPath.Details> {
-            val product = productService.findById(it.base.id)
+            val product = productService.findById(it.base.id, true)
 
             val admin = session.isAdmin
             if (product == null || (product.hidden && product.userId != session.userId && !admin))

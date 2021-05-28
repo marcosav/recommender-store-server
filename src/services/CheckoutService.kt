@@ -11,7 +11,7 @@ import org.kodein.di.instance
 class CheckoutService(di: DI) {
 
     private val orderService by di.instance<OrderService>()
-    private val collectorService by di.instance<CollectorService>()
+    private val feedbackService by di.instance<FeedbackService>()
     private val productService by di.instance<ProductService>()
     private val cartService by di.instance<CartService>()
 
@@ -27,7 +27,7 @@ class CheckoutService(di: DI) {
 
         val orderId = orderService.create(session.userId!!, address, products)
 
-        collectorService.collectBuy(session, products.map { p -> p.key.id!! })
+        feedbackService.collectBuy(session, products.map { p -> p.key.id!! })
 
         return Pair(orderId, token)
     }

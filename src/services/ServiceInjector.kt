@@ -15,7 +15,7 @@ fun DI.MainBuilder.setupServices() {
     bind<ProductReportService>() with singleton { ProductReportService() }
     bind<OrderService>() with singleton { OrderService() }
     bind<ProductStatsService>() with singleton { ProductStatsService(di) }
-    bind<CollectorService>() with singleton { CollectorService(di) }
+    bind<FeedbackService>() with singleton { FeedbackService(di) }
     bind<RecommenderService>() with singleton { RecommenderService(di) }
     bind<CheckoutService>() with singleton { CheckoutService(di) }
 }
