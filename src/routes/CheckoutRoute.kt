@@ -11,6 +11,7 @@ import com.gmail.marcosav2010.services.session
 import com.gmail.marcosav2010.validators.UserAddressValidator
 import io.ktor.application.*
 import io.ktor.locations.*
+import io.ktor.locations.post
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance

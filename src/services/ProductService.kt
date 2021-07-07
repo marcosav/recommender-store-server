@@ -35,8 +35,8 @@ class ProductService(di: DI) {
         }
     }
 
-    fun findByIdPreview(id: Long): PreviewProduct? = transaction {
-        ProductEntity.findByIdNotDeleted(id)?.toPreviewProduct()
+    fun findByIdPreview(id: Long, hidden: Boolean = true): PreviewProduct? = transaction {
+        ProductEntity.findByIdNotDeleted(id)?.takeIf { hidden or !it.hidden }?.toPreviewProduct()
     }
 
     fun findCategoryById(id: Long): ProductCategory? = transaction {

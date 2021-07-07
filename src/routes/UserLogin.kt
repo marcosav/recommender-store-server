@@ -10,6 +10,7 @@ import com.gmail.marcosav2010.utils.BCryptEncoder
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
+import io.ktor.locations.post
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.instance
